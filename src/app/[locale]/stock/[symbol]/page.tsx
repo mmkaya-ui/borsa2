@@ -3,11 +3,12 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useMarketStore } from "@/store/marketStore";
-import { ArrowLeft, RefreshCw, TrendingUp } from "lucide-react";
+import { ArrowLeft, RefreshCw, TrendingUp, Shield, ShieldAlert, ShieldCheck } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Stock, MarketAPI } from "@/lib/api";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
+import { AnalysisUtils, AnalysisResult } from "@/lib/analysisUtils";
 
 // Dynamically import Chart with no SSR to prevent hydration issues
 const Chart = dynamic(() => import("@/components/Chart"), {
@@ -21,6 +22,7 @@ export default function StockDetail() {
     const { stocks, fetchStocks, isLoading } = useMarketStore();
     const [stock, setStock] = useState<Stock | null>(null);
     const t = useTranslations('StockDetail');
+    const tAnalysis = useTranslations('Analysis'); // Separate hook for Analysis namespace if needed, or use t with prefix
 
     // Hydration check
     const [isMounted, setIsMounted] = useState(false);
@@ -66,6 +68,12 @@ export default function StockDetail() {
         loadHistory();
     }, [stock, selectedRange]);
 
+    // AI Analysis Logic
+    const analysis: AnalysisResult | null = useMemo(() => {
+        if (!stock || !chartData || chartData.length < 5) return null;
+        return AnalysisUtils.analyzeStock(chartData, stock.volume);
+    }, [chartData, stock]);
+
     if (!isMounted) return <div className="flex h-screen items-center justify-center animate-pulse text-[var(--muted-foreground)]">{t('loading')}</div>;
 
     if (isLoading && !stock) {
@@ -110,8 +118,8 @@ export default function StockDetail() {
                                     key={range}
                                     onClick={() => setSelectedRange(range.toUpperCase())}
                                     className={`relative z-10 px-4 py-2 rounded-lg text-sm font-bold transition-all active:scale-95 whitespace-nowrap min-w-[3rem] ${selectedRange === range.toUpperCase()
-                                        ? 'bg-[var(--primary)] text-black shadow-lg shadow-[var(--primary)]/20'
-                                        : 'bg-[var(--secondary)]/50 text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] border border-transparent'
+                                            ? 'bg-[var(--primary)] text-black shadow-lg shadow-[var(--primary)]/20'
+                                            : 'bg-[var(--secondary)]/50 text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] border border-transparent'
                                         }`}
                                 >
                                     {t(`ranges.${range}`, { fallback: range.toUpperCase() })}
@@ -160,6 +168,63 @@ export default function StockDetail() {
                     </div>
                 </div>
             </div>
+
+            {/* AI Analysis Card Section - Full Width Below Chart/Stats */}
+            {analysis && (
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm animate-in slide-in-from-bottom-4 duration-700">
+                    <div className="flex items-center gap-2 mb-4">
+                        {analysis.riskLevel === 'HIGH' ? <ShieldAlert className="text-[var(--destructive)]" /> :
+                            analysis.riskLevel === 'MEDIUM' ? <Shield className="text-yellow-500" /> :
+                                <ShieldCheck className="text-green-500" />}
+                        <h3 className="font-bold text-lg text-[var(--foreground)]">{tAnalysis('title')}</h3>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row gap-6">
+                        {/* Score Gauge */}
+                        <div className="flex-1 flex flex-col items-center justify-center p-4 bg-[var(--secondary)]/30 rounded-lg">
+                            <span className="text-sm text-[var(--muted-foreground)] uppercase tracking-wider mb-1">{tAnalysis('riskScore')}</span>
+                            <div className={`text-4xl font-black ${analysis.riskLevel === 'HIGH' ? 'text-[var(--destructive)]' :
+                                    analysis.riskLevel === 'MEDIUM' ? 'text-yellow-500' : 'text-green-500'
+                                }`}>
+                                {analysis.riskScore}/100
+                            </div>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded mt-2 ${analysis.riskLevel === 'HIGH' ? 'bg-[var(--destructive)]/20 text-[var(--destructive)]' :
+                                    analysis.riskLevel === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-green-500/20 text-green-500'
+                                }`}>
+                                {tAnalysis(`levels.${analysis.riskLevel}`)}
+                            </span>
+                        </div>
+
+                        {/* Details */}
+                        <div className="flex-[2] space-y-3">
+                            <div className="flex justify-between text-sm py-1 border-b border-[var(--border)]">
+                                <span className="text-[var(--muted-foreground)]">{tAnalysis('rsi')}</span>
+                                <span className="font-mono font-medium">{analysis.rsi.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-sm py-1 border-b border-[var(--border)]">
+                                <span className="text-[var(--muted-foreground)]">{tAnalysis('volatility')}</span>
+                                <span className="font-mono font-medium">{analysis.volatility.toFixed(4)}</span>
+                            </div>
+
+                            <div className="mt-3">
+                                {analysis.hints.length > 0 ? (
+                                    analysis.hints.map((hint, i) => (
+                                        <div key={i} className="flex items-start gap-2 text-sm text-[var(--foreground)] mb-1">
+                                            <span>•</span>
+                                            <span>{tAnalysis(`hints.${hint}`)}</span>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="flex items-start gap-2 text-sm text-[var(--muted-foreground)]">
+                                        <span>•</span>
+                                        <span>{tAnalysis('hints.safe')}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
