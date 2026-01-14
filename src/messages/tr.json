@@ -7,8 +7,16 @@
     },
     "Dashboard": {
         "title": "Piyasa Genel Bakış",
-        "subtitle": "Canlı veriler ve performans takibi",
-        "loading": "Piyasa Verileri Yükleniyor..."
+        "welcome": "Piyasalara Hoşgeldiniz",
+        "subtitle": "BIST, NASDAQ ve Kripto paralar için yapay zeka destekli analiz platformu.",
+        "marketOverview": "Piyasa Genel Bakış",
+        "loading": "Piyasa Verileri Yükleniyor...",
+        "table": {
+            "symbol": "SEMBOL",
+            "price": "FİYAT",
+            "change": "DEĞİŞİM",
+            "volume": "HACİM"
+        }
     },
     "Portfolio": {
         "title": "Portföyüm",

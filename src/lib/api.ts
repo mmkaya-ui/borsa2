@@ -313,7 +313,7 @@ function populateStock(base: { symbol: string; name: string; basePrice: number }
     return generateRandomStockData({
         ...base,
         exchange,
-        currency: exchange === 'BIST' ? 'TRY' : 'USD'
+        currency: (exchange === 'BIST' || exchange as string === 'TR') ? 'TRY' : 'USD'
     } as any);
 }
 
