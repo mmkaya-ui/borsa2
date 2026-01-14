@@ -1,14 +1,17 @@
 "use client";
 
 import { useMarketStore } from "@/store/marketStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import StockCard from "@/components/StockCard";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import AddStockModal from "@/components/AddStockModal";
+
 export default function Portfolio() {
     const { stocks, fetchStocks, isLoading, holdings } = useMarketStore();
     const t = useTranslations('Portfolio');
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     useEffect(() => {
         if (stocks.length === 0) {
@@ -36,7 +39,10 @@ export default function Portfolio() {
                         {t('subtitle')}
                     </p>
                 </div>
-                <button className="flex items-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                <button
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="flex items-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity"
+                >
                     <Plus size={20} />
                     {t('add')}
                 </button>
@@ -84,6 +90,8 @@ export default function Portfolio() {
                     })
                 )}
             </div>
+            {/* Modal */}
+            <AddStockModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
         </div>
     );
 }

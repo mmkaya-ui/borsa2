@@ -5,6 +5,7 @@ import { useEffect, useMemo } from "react";
 import { AlertTriangle, TrendingUp, Activity, Info, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
+import { AnalysisUtils } from "@/lib/analysisUtils";
 
 export default function Analysis() {
     const { stocks, fetchStocks, isLoading } = useMarketStore();
@@ -16,16 +17,20 @@ export default function Analysis() {
         }
     }, [stocks.length, fetchStocks]);
 
-    // Manipulation Detection Logic (Mock)
-    const anomalies = useMemo(() => {
-        return stocks.filter(stock => {
-            const priceChange = Math.abs(stock.changePercent);
-            const volumeSpike = stock.volume > 500000; // Arbitrary threshold
 
-            // Detect "Pump and Dump" signals (High volume + High price change)
-            return priceChange > 5 || (priceChange > 2 && volumeSpike);
-        });
+
+    // ... inside component
+
+    // Artificial Intelligence Scanner (Real Logic)
+    const scannedMarket = useMemo(() => {
+        if (stocks.length === 0) return [];
+        return stocks.map(stock => {
+            const analysis = AnalysisUtils.analyzeStock(stock.history, stock.volume);
+            return { ...stock, analysis };
+        }).sort((a, b) => b.analysis.riskScore - a.analysis.riskScore);
     }, [stocks]);
+
+    const riskyAssets = scannedMarket.filter(item => item.analysis.riskLevel === 'HIGH' || item.analysis.riskLevel === 'MEDIUM');
 
     const predictions = useMemo(() => {
         return stocks.map(stock => {
@@ -89,24 +94,33 @@ export default function Analysis() {
             {/* Alerts Section - Always visible to show manipulation indicators location */}
             <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 transition-all duration-300">
                 <div className="flex items-center gap-2 mb-4">
-                    <AlertTriangle size={24} className={anomalies.length > 0 ? "text-[var(--destructive)]" : "text-emerald-500"} />
+                    <AlertTriangle size={24} className={riskyAssets.length > 0 ? "text-[var(--destructive)]" : "text-emerald-500"} />
                     <h2 className="text-xl font-bold text-[var(--foreground)]">{t('anomalies')}</h2>
                 </div>
 
-                {anomalies.length > 0 ? (
+                {riskyAssets.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {anomalies.map(stock => (
-                            <Link key={stock.symbol} href={`/stock/${stock.symbol}`} className="block group">
+                        {riskyAssets.map(item => (
+                            <Link key={item.symbol} href={`/stock/${item.symbol}`} className="block group">
                                 <div className="bg-[var(--card)] p-4 rounded-lg border border-[var(--destructive)] flex justify-between items-center hover:bg-[var(--destructive)]/5 transition-colors cursor-pointer group-hover:shadow-md">
                                     <div>
-                                        <span className="font-bold flex items-center gap-2">
-                                            {stock.symbol}
-                                            <AlertTriangle size={14} className="text-[var(--destructive)]" />
-                                        </span>
-                                        <p className="text-sm text-[var(--muted-foreground)]">{t('unusual')}</p>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="font-bold text-lg">{item.symbol}</span>
+                                            <span className="px-2 py-0.5 rounded text-[10px] bg-[var(--destructive)] text-white font-bold">
+                                                {item.analysis.riskScore} RISK
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-[var(--muted-foreground)]">
+                                            {t(`hints.${item.analysis.hints[0]}`)}
+                                        </p>
                                     </div>
                                     <div className="text-right">
-                                        <div className="text-[var(--destructive)] font-bold">{stock.changePercent.toFixed(2)}%</div>
+                                        <div className={`font-bold ${item.change >= 0 ? 'text-[var(--primary)]' : 'text-[var(--destructive)]'}`}>
+                                            {item.changePercent.toFixed(2)}%
+                                        </div>
+                                        <div className="text-[10px] text-[var(--muted-foreground)] uppercase">
+                                            {item.exchange}
+                                        </div>
                                     </div>
                                 </div>
                             </Link>
