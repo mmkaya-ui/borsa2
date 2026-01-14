@@ -51,19 +51,24 @@ const MOCK_STOCKS: Stock[] = [
 
 function generateRandomStockData(base: Stock | any): Stock {
     const basePrice = base.basePrice || 100;
-    // Fix: Variation should be proportional to price to avoid negative values for cheap assets
-    const percentVariation = (Math.random() - 0.5) * 0.05; // +/- 2.5%
+    // Fix: Variation should be proportional to price
+    // Inject artificial volatility for specific "Risky" demo stocks
+    const isVolatile = ['DOGE-USD', 'SASA', 'XRP-USD'].includes(base.symbol);
+    const volatilityFactor = isVolatile ? 0.15 : 0.05; // 15% for risky, 5% for normal
+
+    const percentVariation = (Math.random() - 0.5) * volatilityFactor;
     const variation = basePrice * percentVariation;
 
     const price = Math.max(0.01, basePrice + variation);
-    const change = variation;
+    const change = variation; // This was missing correct calc before
     const changePercent = percentVariation * 100;
 
     // Generate 20 point history with proportional random walk
     const history = [price];
     for (let i = 1; i < 20; i++) {
         const prev = history[i - 1];
-        const move = prev * (Math.random() - 0.5) * 0.02; // 2% daily check
+        // Volatile stocks move more aggressively
+        const move = prev * (Math.random() - 0.5) * (isVolatile ? 0.08 : 0.02);
         history.push(Math.max(0.01, prev + move));
     }
 

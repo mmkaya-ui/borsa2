@@ -55,7 +55,7 @@ export const AnalysisUtils = {
         const prevPrice = data[data.length - 2] || lastPrice;
         const percentChange = Math.abs((lastPrice - prevPrice) / prevPrice);
 
-        if (percentChange > 0.05) { // >5% movement in one tick
+        if (percentChange > 0.02) { // >2% movement in one tick (Sensitive for demo)
             riskScore += 40;
             hints.push('volatility_extreme');
         }
