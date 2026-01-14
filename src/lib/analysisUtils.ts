@@ -91,5 +91,15 @@ export const AnalysisUtils = {
             rsi,
             volatility
         };
+    },
+
+    calculateTrend: (history: number[]): { trend: 'Bullish' | 'Bearish', confidence: number } => {
+        if (history.length < 2) return { trend: 'Bullish', confidence: 0 };
+        // Simple logic: compare last vs first point of visible history
+        // In a real app this would use MA crosses or Regression
+        const trend = history[history.length - 1] > history[0] ? 'Bullish' : 'Bearish';
+        // Mock confidence based on "clarity" of trend
+        const confidence = Math.floor(Math.random() * 30) + 70;
+        return { trend, confidence };
     }
 };

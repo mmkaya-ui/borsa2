@@ -47,8 +47,7 @@ export default function Analysis() {
         }
 
         return filtered.map(stock => {
-            const trend = stock.history[stock.history.length - 1] > stock.history[0] ? 'Bullish' : 'Bearish';
-            const confidence = Math.floor(Math.random() * 30) + 70; // 70-100%
+            const { trend, confidence } = AnalysisUtils.calculateTrend(stock.history);
             return { ...stock, trend, confidence };
         });
     }, [stocks, selectedExchange]);

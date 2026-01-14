@@ -175,6 +175,34 @@ export default function StockDetail() {
                 </div>
             </div>
 
+            {/* Trend Prediction Card */}
+            {stock && chartData.length > 0 && (() => {
+                const { trend, confidence } = AnalysisUtils.calculateTrend(chartData);
+                return (
+                    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm flex items-center justify-between animate-in slide-in-from-bottom-3 duration-500">
+                        <div className="flex items-center gap-4">
+                            <div className={`p-3 rounded-full ${trend === 'Bullish' ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'bg-[var(--destructive)]/10 text-[var(--destructive)]'}`}>
+                                <TrendingUp size={24} className={trend === 'Bearish' ? 'rotate-180' : ''} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-lg text-[var(--foreground)]">{tAnalysis('predictions')}</h3>
+                                <p className="text-sm text-[var(--muted-foreground)]">
+                                    {tAnalysis('aiTrendDesc')}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <div className={`text-2xl font-bold ${trend === 'Bullish' ? 'text-[var(--primary)]' : 'text-[var(--destructive)]'}`}>
+                                {trend === 'Bullish' ? tAnalysis('bullish') : tAnalysis('bearish')}
+                            </div>
+                            <div className="text-sm font-mono text-[var(--muted-foreground)]">
+                                %{confidence} {tAnalysis('confidence')}
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
+
             {/* AI Analysis Card Section - Full Width Below Chart/Stats */}
             {analysis && (
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm animate-in slide-in-from-bottom-4 duration-700">

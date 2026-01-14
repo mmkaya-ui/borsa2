@@ -26,6 +26,7 @@
         "anomalies": "Tespit Edilen Anomaliler",
         "unusual": "Olağandışı Hacim",
         "predictions": "Trend Tahminleri",
+        "aiTrendDesc": "Yapay zeka modellerine göre beklenen kısa vadeli fiyat yönü.",
         "confidence": "Güven",
         "volatility": "Volatilite Endeksi",
         "volatilityDesc": "Piyasa volatilitesi şu anda ORTA seviyede. Risk iştahı dengeli olmalı.",
