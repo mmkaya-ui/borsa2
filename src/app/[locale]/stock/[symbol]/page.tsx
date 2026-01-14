@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { useMarketStore } from "@/store/marketStore";
 import { ArrowLeft, RefreshCw, TrendingUp } from "lucide-react";
 import { Link } from "@/i18n/routing";
-import { Stock } from "@/lib/api";
+import { Stock, MarketAPI } from "@/lib/api";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 
@@ -43,12 +43,27 @@ export default function StockDetail() {
 
     // Range Selection State
     const [selectedRange, setSelectedRange] = useState('1D');
+    const [chartData, setChartData] = useState<number[]>([]);
+    const [isChartLoading, setIsChartLoading] = useState(false);
 
-    const chartData = useMemo(() => {
-        if (!stock || !stock.history) return [];
-        // Just shifting data slightly to simulate "different" views for this demo
-        const multiplier = selectedRange === '1D' ? 1 : selectedRange === '1W' ? 5 : 20;
-        return stock.history.map((val, i) => val + (Math.sin(i) * multiplier));
+    // Fetch history when stock or range changes
+    useEffect(() => {
+        const loadHistory = async () => {
+            if (!stock) return;
+            // Don't show loading on initial load if we have some history, to prevent flickering
+            // But valid to show it when switching ranges
+            setIsChartLoading(true);
+            try {
+                const history = await MarketAPI.getHistory(stock.symbol, selectedRange);
+                setChartData(history);
+            } catch (e) {
+                console.error("Failed to load history", e);
+                setChartData([]);
+            } finally {
+                setIsChartLoading(false);
+            }
+        };
+        loadHistory();
     }, [stock, selectedRange]);
 
     if (!isMounted) return <div className="flex h-screen items-center justify-center animate-pulse text-[var(--muted-foreground)]">{t('loading')}</div>;
@@ -105,7 +120,7 @@ export default function StockDetail() {
                         </div>
                     </div>
                     {/* Render Chart safely only when mounted */}
-                    {isMounted && stock.history && stock.history.length > 0 ? (
+                    {isMounted && !isChartLoading && chartData.length > 0 ? (
                         <Chart data={chartData} color={isPositive ? "var(--primary)" : "var(--destructive)"} />
                     ) : (
                         <div className="h-[400px] flex items-center justify-center text-[var(--muted-foreground)]">

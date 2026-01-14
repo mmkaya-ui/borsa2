@@ -53,5 +53,37 @@ export const MarketAPI = {
         }, 3000); // Update every 3 seconds
 
         return () => clearInterval(interval);
+    },
+
+    getHistory: async (symbol: string, range: string): Promise<number[]> => {
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        const basePrice = MOCK_STOCKS.find(s => s.symbol === symbol)?.basePrice || 100;
+        let points = 20;
+        let volatility = 0.02; // 2%
+
+        switch (range) {
+            case '5M': points = 10; volatility = 0.005; break;
+            case '1H': points = 24; volatility = 0.01; break;
+            case '1D': points = 48; volatility = 0.02; break; // Every 30 mins
+            case '1W': points = 7; volatility = 0.05; break;
+            case '1M': points = 30; volatility = 0.08; break;
+            case '1Y': points = 52; volatility = 0.20; break; // Weekly
+            case '5Y': points = 60; volatility = 0.40; break;
+            default: points = 20; volatility = 0.05;
+        }
+
+        const history: number[] = [];
+        let currentPrice = basePrice;
+
+        for (let i = 0; i < points; i++) {
+            // Random walk
+            const change = currentPrice * (Math.random() - 0.5) * volatility;
+            currentPrice += change;
+            history.push(currentPrice);
+        }
+
+        return history;
     }
 };
