@@ -10,10 +10,13 @@ export default function Home() {
   const t = useTranslations('Dashboard');
 
   useEffect(() => {
-    fetchStocks();
+    // Optimization: Only fetch if data is missing
+    if (stocks.length === 0) {
+      fetchStocks();
+    }
     const unsubscribe = startLiveUpdates();
     return () => unsubscribe();
-  }, [fetchStocks, startLiveUpdates]);
+  }, [fetchStocks, startLiveUpdates, stocks.length]);
 
   return (
     <div className="flex flex-col gap-8 max-w-7xl mx-auto">

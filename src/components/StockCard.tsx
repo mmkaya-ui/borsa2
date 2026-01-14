@@ -1,7 +1,7 @@
 "use client";
 
 import { Stock } from "@/lib/api";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer, YAxis } from "recharts";
 import { useMemo } from "react";

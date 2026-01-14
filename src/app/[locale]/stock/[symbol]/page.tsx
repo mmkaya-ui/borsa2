@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useMarketStore } from "@/store/marketStore";
 import Chart from "@/components/Chart";
@@ -39,6 +39,16 @@ export default function StockDetail() {
 
     const isPositive = stock.change >= 0;
 
+    const [selectedRange, setSelectedRange] = useState('1D');
+
+    // Mock logic to simulate different time ranges
+    const chartData = useMemo(() => {
+        if (!stock) return [];
+        // Just shifting data slightly to simulate "different" views for this demo
+        const multiplier = selectedRange === '1D' ? 1 : selectedRange === '1W' ? 5 : 20;
+        return stock.history.map((val, i) => val + (Math.sin(i) * multiplier));
+    }, [stock, selectedRange]);
+
     return (
         <div className="max-w-5xl mx-auto flex flex-col gap-6 animate-in fade-in duration-500">
             <div className="flex items-center gap-4">
@@ -57,7 +67,7 @@ export default function StockDetail() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Main Chart Card */}
                 <div className="md:col-span-2 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-                    <div className="flex justify-between items-end mb-4">
+                    <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-4 gap-4">
                         <div>
                             <div className="text-4xl font-bold tracking-tight">${stock.price.toFixed(2)}</div>
                             <div className={`flex items-center gap-2 mt-1 ${isPositive ? 'text-[var(--primary)]' : 'text-[var(--destructive)]'}`}>
@@ -65,15 +75,22 @@ export default function StockDetail() {
                                 <span className="font-semibold">{stock.change > 0 ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent.toFixed(2)}%)</span>
                             </div>
                         </div>
-                        <div className="flex gap-1 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
-                            {['5m', '15m', '1h', '4h', '1D', '1W', '1M', '1Y', '5Y', '20Y'].map(range => (
-                                <button key={range} className="px-3 py-1 rounded-md text-xs font-medium hover:bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors whitespace-nowrap">
-                                    {t(`ranges.${range.toLowerCase()}`, { fallback: range })}
+                        <div className="flex gap-1 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide w-full sm:w-auto">
+                            {['5m', '15m', '1h', '4h', '1d', '1w', '1m', '1y', '5y', '20y'].map(range => (
+                                <button
+                                    key={range}
+                                    onClick={() => setSelectedRange(range.toUpperCase())}
+                                    className={`px-3 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${selectedRange === range.toUpperCase()
+                                        ? 'bg-[var(--primary)] text-white'
+                                        : 'hover:bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+                                        }`}
+                                >
+                                    {t(`ranges.${range}`, { fallback: range.toUpperCase() })}
                                 </button>
                             ))}
                         </div>
                     </div>
-                    <Chart data={stock.history} color={isPositive ? "var(--primary)" : "var(--destructive)"} />
+                    <Chart data={chartData} color={isPositive ? "var(--primary)" : "var(--destructive)"} />
                 </div>
 
                 {/* Stats Card */}
