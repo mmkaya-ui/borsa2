@@ -5,33 +5,35 @@ import { useState } from "react";
 import { Search, Plus, X } from "lucide-react";
 import { useMarketStore } from "@/store/marketStore";
 
-// Mock available stocks for selection - In real app, this would be an API search
-const AVAILABLE_STOCKS = [
-    { symbol: "THYAO", name: "Türk Hava Yolları", exchange: 'BIST', price: 280 },
-    { symbol: "GARAN", name: "Garanti BBVA", exchange: 'BIST', price: 65 },
-    { symbol: "ASELS", name: "Aselsan", exchange: 'BIST', price: 45 },
-    { symbol: "EREGL", name: "Ereğli Demir Çelik", exchange: 'BIST', price: 42 },
-    { symbol: "KCHOL", name: "Koç Holding", exchange: 'BIST', price: 140 },
-    { symbol: "AAPL", name: "Apple Inc.", exchange: 'NASDAQ', price: 150 },
-    { symbol: "GOOGL", name: "Alphabet Inc.", exchange: 'NASDAQ', price: 2800 },
-    { symbol: "TSLA", name: "Tesla, Inc.", exchange: 'NASDAQ', price: 700 },
-    { symbol: "BTC-USD", name: "Bitcoin USD", exchange: 'CRYPTO', price: 45000 },
-    { symbol: "ETH-USD", name: "Ethereum USD", exchange: 'CRYPTO', price: 3000 },
-];
+
+
+import { MarketAPI } from "@/lib/api";
+import { useEffect } from "react";
 
 export default function AddStockModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const { addHolding } = useMarketStore();
     const [step, setStep] = useState<1 | 2>(1);
     const [selectedExchange, setSelectedExchange] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState<any[]>([]);
     const [quantity, setQuantity] = useState(1);
-    const [selectedStock, setSelectedStock] = useState<typeof AVAILABLE_STOCKS[0] | null>(null);
+    const [selectedStock, setSelectedStock] = useState<any>(null);
 
-    const handleSelectExchange = (exchange: string) => {
-        setSelectedExchange(exchange);
-        // In a real app, you might trigger a fetch here.
-    };
+    // Initial load and Search Effect
+    useEffect(() => {
+        if (!isOpen) return;
 
-    const handleSelectStock = (stock: typeof AVAILABLE_STOCKS[0]) => {
+        const search = async () => {
+            // If valid search, search. Else show popular/all.
+            const results = await MarketAPI.searchStocks(searchQuery);
+            setSearchResults(results);
+        };
+
+        const debounce = setTimeout(search, 300);
+        return () => clearTimeout(debounce);
+    }, [searchQuery, isOpen]);
+
+    const handleSelectStock = (stock: any) => {
         setSelectedStock(stock);
         setStep(2);
     };
@@ -63,13 +65,25 @@ export default function AddStockModal({ isOpen, onClose }: { isOpen: boolean; on
                 <div className="p-4 overflow-y-auto">
                     {step === 1 && (
                         <div className="space-y-4">
+                            {/* Search Input */}
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" size={18} />
+                                <input
+                                    type="text"
+                                    placeholder="Hisse ara (Örn: THYAO, Apple...)"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full bg-[var(--secondary)]/50 border border-[var(--border)] rounded-lg pl-10 pr-4 py-3 outline-none focus:ring-2 ring-[var(--primary)]/50 transition-all text-sm font-medium"
+                                />
+                            </div>
+
                             {/* Exchange Filter */}
-                            <div className="flex gap-2 overflow-x-auto pb-2">
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                                 {['ALL', 'BIST', 'NASDAQ', 'CRYPTO'].map(ex => (
                                     <button
                                         key={ex}
                                         onClick={() => setSelectedExchange(ex === 'ALL' ? null : ex)}
-                                        className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${(selectedExchange === ex) || (ex === 'ALL' && selectedExchange === null)
+                                        className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${(selectedExchange === ex) || (ex === 'ALL' && selectedExchange === null)
                                             ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
                                             : 'bg-[var(--secondary)] text-[var(--muted-foreground)] hover:bg-[var(--secondary)]/80'
                                             }`}
@@ -80,32 +94,39 @@ export default function AddStockModal({ isOpen, onClose }: { isOpen: boolean; on
                             </div>
 
                             {/* Stock List */}
-                            <div className="space-y-2">
-                                {AVAILABLE_STOCKS
+                            <div className="space-y-2 h-[300px] overflow-y-auto pr-1">
+                                {searchResults
                                     .filter(s => !selectedExchange || s.exchange === selectedExchange)
                                     .map(stock => (
                                         <div
                                             key={stock.symbol}
                                             onClick={() => handleSelectStock(stock)}
-                                            className="flex justify-between items-center p-3 rounded-lg hover:bg-[var(--secondary)]/50 cursor-pointer transition-colors border border-transparent hover:border-[var(--border)]"
+                                            className="flex justify-between items-center p-3 rounded-lg hover:bg-[var(--secondary)] cursor-pointer transition-colors border border-transparent hover:border-[var(--border)] group"
                                         >
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-[var(--secondary)] flex items-center justify-center font-bold text-xs text-[var(--muted-foreground)]">
+                                                <div className="w-10 h-10 rounded-full bg-[var(--secondary)] group-hover:bg-[var(--card)] flex items-center justify-center font-bold text-[10px] text-[var(--muted-foreground)] transition-colors">
                                                     {stock.symbol.substring(0, 2)}
                                                 </div>
                                                 <div>
-                                                    <div className="font-bold">{stock.symbol}</div>
-                                                    <div className="text-xs text-[var(--muted-foreground)]">{stock.name}</div>
+                                                    <div className="font-bold flex items-center gap-2">
+                                                        {stock.symbol}
+                                                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-[var(--background)] border border-[var(--border)] text-[var(--muted-foreground)]">
+                                                            {stock.exchange}
+                                                        </span>
+                                                    </div>
+                                                    <div className="text-xs text-[var(--muted-foreground)] line-clamp-1">{stock.name}</div>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="font-mono">${stock.price}</div>
-                                                <div className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--secondary)] text-[var(--muted-foreground)] inline-block">
-                                                    {stock.exchange}
-                                                </div>
+                                                <div className="font-mono font-medium">${stock.price.toFixed(2)}</div>
                                             </div>
                                         </div>
                                     ))}
+                                {searchResults.length === 0 && (
+                                    <div className="text-center py-10 text-[var(--muted-foreground)] text-sm">
+                                        Sonuç bulunamadı.
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}

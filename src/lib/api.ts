@@ -9,32 +9,55 @@ export interface Stock {
     history: number[]; // Simple sparkline data
 }
 
-const MOCK_STOCKS = [
-    // BIST (Turkish Stocks)
-    { symbol: "THYAO", name: "Türk Hava Yolları", basePrice: 280, exchange: 'BIST' },
-    { symbol: "GARAN", name: "Garanti BBVA", basePrice: 65, exchange: 'BIST' },
-    { symbol: "ASELS", name: "Aselsan", basePrice: 45, exchange: 'BIST' },
-    { symbol: "EREGL", name: "Ereğli Demir Çelik", basePrice: 42, exchange: 'BIST' },
-    { symbol: "KCHOL", name: "Koç Holding", basePrice: 140, exchange: 'BIST' },
-    // NASDAQ
-    { symbol: "AAPL", name: "Apple Inc.", basePrice: 150, exchange: 'NASDAQ' },
-    { symbol: "GOOGL", name: "Alphabet Inc.", basePrice: 2800, exchange: 'NASDAQ' },
-    { symbol: "AMZN", name: "Amazon.com Inc.", basePrice: 3400, exchange: 'NASDAQ' },
-    { symbol: "MSFT", name: "Microsoft Corp.", basePrice: 300, exchange: 'NASDAQ' },
-    { symbol: "TSLA", name: "Tesla, Inc.", basePrice: 700, exchange: 'NASDAQ' },
+const MOCK_STOCKS: Stock[] = [
+    // BIST (Istanbul Stock Exchange)
+    { symbol: "THYAO", name: "Türk Hava Yolları", basePrice: 280, exchange: 'BIST' } as any,
+    { symbol: "GARAN", name: "Garanti BBVA", basePrice: 65, exchange: 'BIST' } as any,
+    { symbol: "ASELS", name: "Aselsan", basePrice: 45, exchange: 'BIST' } as any,
+    { symbol: "EREGL", name: "Ereğli Demir Çelik", basePrice: 42, exchange: 'BIST' } as any,
+    { symbol: "KCHOL", name: "Koç Holding", basePrice: 140, exchange: 'BIST' } as any,
+    { symbol: "SISE", name: "Şişecam", basePrice: 48, exchange: 'BIST' } as any,
+    { symbol: "AKBNK", name: "Akbank", basePrice: 38, exchange: 'BIST' } as any,
+    { symbol: "BIMAS", name: "BİM Mağazalar", basePrice: 350, exchange: 'BIST' } as any,
+    { symbol: "TUPRS", name: "Tüpraş", basePrice: 160, exchange: 'BIST' } as any,
+    { symbol: "SASA", name: "SASA Polyester", basePrice: 38, exchange: 'BIST' } as any,
+    { symbol: "HEKTS", name: "Hektaş", basePrice: 22, exchange: 'BIST' } as any,
+    { symbol: "PETKM", name: "Petkim", basePrice: 20, exchange: 'BIST' } as any,
+    { symbol: "TOASO", name: "Tofaş Oto", basePrice: 240, exchange: 'BIST' } as any,
+    { symbol: "FROTO", name: "Ford Otosan", basePrice: 890, exchange: 'BIST' } as any,
+    { symbol: "KONTR", name: "Kontrolmatik", basePrice: 210, exchange: 'BIST' } as any,
+
+    // NASDAQ / NYSE (US Tech & Blue Chips)
+    { symbol: "AAPL", name: "Apple Inc.", basePrice: 175, exchange: 'NASDAQ' } as any,
+    { symbol: "GOOGL", name: "Alphabet Inc.", basePrice: 140, exchange: 'NASDAQ' } as any,
+    { symbol: "MSFT", name: "Microsoft Corp.", basePrice: 380, exchange: 'NASDAQ' } as any,
+    { symbol: "AMZN", name: "Amazon.com", basePrice: 155, exchange: 'NASDAQ' } as any,
+    { symbol: "TSLA", name: "Tesla, Inc.", basePrice: 220, exchange: 'NASDAQ' } as any,
+    { symbol: "NVDA", name: "NVIDIA Corp.", basePrice: 600, exchange: 'NASDAQ' } as any,
+    { symbol: "META", name: "Meta Platforms", basePrice: 390, exchange: 'NASDAQ' } as any,
+    { symbol: "NFLX", name: "Netflix", basePrice: 480, exchange: 'NASDAQ' } as any,
+    { symbol: "AMD", name: "AMD", basePrice: 160, exchange: 'NASDAQ' } as any,
+    { symbol: "INTC", name: "Intel Corp.", basePrice: 45, exchange: 'NASDAQ' } as any,
+
     // CRYPTO
-    { symbol: "BTC-USD", name: "Bitcoin USD", basePrice: 45000, exchange: 'CRYPTO' },
-    { symbol: "ETH-USD", name: "Ethereum USD", basePrice: 3000, exchange: 'CRYPTO' },
+    { symbol: "BTC-USD", name: "Bitcoin", basePrice: 52000, exchange: 'CRYPTO' } as any,
+    { symbol: "ETH-USD", name: "Ethereum", basePrice: 2800, exchange: 'CRYPTO' } as any,
+    { symbol: "SOL-USD", name: "Solana", basePrice: 110, exchange: 'CRYPTO' } as any,
+    { symbol: "XRP-USD", name: "Ripple", basePrice: 0.55, exchange: 'CRYPTO' } as any,
+    { symbol: "AVAX-USD", name: "Avalanche", basePrice: 36, exchange: 'CRYPTO' } as any,
+    { symbol: "DOGE-USD", name: "Dogecoin", basePrice: 0.08, exchange: 'CRYPTO' } as any,
+    { symbol: "BNB-USD", name: "Binance Coin", basePrice: 350, exchange: 'CRYPTO' } as any,
 ];
 
-function generateRandomStockData(base: { symbol: string; name: string; basePrice: number; exchange: string }): Stock {
+function generateRandomStockData(base: Stock | any): Stock {
+    const basePrice = base.basePrice || 100;
     const variation = (Math.random() - 0.5) * 5; // +/- 2.5% or dollars
-    const price = base.basePrice + variation;
+    const price = basePrice + variation;
     const change = variation;
-    const changePercent = (change / base.basePrice) * 100;
+    const changePercent = (change / basePrice) * 100;
 
     // Generate 20 point history
-    const history = Array.from({ length: 20 }, () => base.basePrice + (Math.random() - 0.5) * 10);
+    const history = Array.from({ length: 20 }, () => basePrice + (Math.random() - 0.5) * 10);
 
     return {
         symbol: base.symbol,
@@ -69,7 +92,10 @@ export const MarketAPI = {
         // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 300));
 
-        const basePrice = MOCK_STOCKS.find(s => s.symbol === symbol)?.basePrice || 100;
+        // Fix: Use index access or check for existence
+        const stock = MOCK_STOCKS.find(s => s.symbol === symbol);
+        const basePrice = stock ? (stock as any).basePrice : 100;
+
         let points = 20;
         let volatility = 0.02; // 2%
 
@@ -95,5 +121,20 @@ export const MarketAPI = {
         }
 
         return history;
+    },
+
+    searchStocks: async (query: string): Promise<any[]> => {
+        await new Promise(resolve => setTimeout(resolve, 200));
+        const lowerQuery = query.toLowerCase();
+
+        if (!query) {
+            // Return top 10 as default
+            return MOCK_STOCKS.slice(0, 10).map(generateRandomStockData);
+        }
+
+        return MOCK_STOCKS.filter(s =>
+            s.symbol.toLowerCase().includes(lowerQuery) ||
+            s.name.toLowerCase().includes(lowerQuery)
+        ).map(generateRandomStockData);
     }
 };
