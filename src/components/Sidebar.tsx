@@ -16,7 +16,7 @@ export default function Sidebar() {
     ];
 
     return (
-        <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 border-r border-[var(--border)] bg-[var(--card)]/50 backdrop-blur-xl transition-transform sm:flex sm:translate-x-0">
+        <aside className="fixed left-0 top-0 z-[90] hidden h-screen w-64 border-r border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-2xl transition-transform sm:flex sm:translate-x-0 overflow-y-auto">
             <div className="flex h-full flex-col px-3 py-4">
                 <div className="mb-6 flex items-center pl-2.5">
                     <span className="self-center whitespace-nowrap text-2xl font-semibold text-[var(--foreground)] tracking-tight">

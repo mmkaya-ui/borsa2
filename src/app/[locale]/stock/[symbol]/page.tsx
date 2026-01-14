@@ -75,14 +75,14 @@ export default function StockDetail() {
                                 <span className="font-semibold">{stock.change > 0 ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent.toFixed(2)}%)</span>
                             </div>
                         </div>
-                        <div className="flex gap-1 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide w-full sm:w-auto">
+                        <div className="flex gap-2 overflow-x-auto pb-4 sm:pb-0 w-full sm:w-auto px-1 touch-pan-x">
                             {['5m', '15m', '1h', '4h', '1d', '1w', '1m', '1y', '5y', '20y'].map(range => (
                                 <button
                                     key={range}
                                     onClick={() => setSelectedRange(range.toUpperCase())}
-                                    className={`px-3 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${selectedRange === range.toUpperCase()
-                                        ? 'bg-[var(--primary)] text-white'
-                                        : 'hover:bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+                                    className={`relative z-10 px-4 py-2 rounded-lg text-sm font-bold transition-all active:scale-95 whitespace-nowrap min-w-[3rem] ${selectedRange === range.toUpperCase()
+                                            ? 'bg-[var(--primary)] text-black shadow-lg shadow-[var(--primary)]/20'
+                                            : 'bg-[var(--secondary)]/50 text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] border border-transparent'
                                         }`}
                                 >
                                     {t(`ranges.${range}`, { fallback: range.toUpperCase() })}
