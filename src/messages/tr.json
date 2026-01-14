@@ -86,7 +86,7 @@
         "marketCap": "Piyasa Değeri",
         "open": "Açılış",
         "realtimeTitle": "Gerçek Zamanlı Güncellemeler",
-        "realtimeDesc": "Bu veriler WebSocket bağlantısı (simüle edilmiş) ile gerçek zamanlı olarak güncellenmektedir.",
+        "realtimeDesc": "Piyasa verileri anlık veri akışı ile canlı olarak güncellenmektedir.",
         "ranges": {
             "5m": "5dk",
             "15m": "15dk",
