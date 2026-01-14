@@ -6,6 +6,70 @@ import { AlertTriangle, TrendingUp, Activity, Info, CheckCircle2, ArrowUp, Arrow
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { AnalysisUtils } from "@/lib/analysisUtils";
+import { memo } from "react";
+
+// Memoized Row Component
+const MarketScannerRow = memo(({ stock, t, trend, confidence, isRisky }: any) => {
+    return (
+        <Link href={`/stock/${stock.symbol}`} className="block">
+            <div className={`grid grid-cols-12 gap-4 p-4 items-center border-b border-[var(--border)] hover:bg-[var(--secondary)]/50 transition-colors ${isRisky ? 'bg-[var(--destructive)]/5' : ''}`}>
+
+                {/* Symbol & Name */}
+                <div className="col-span-4 md:col-span-3">
+                    <div className="font-bold text-[var(--foreground)]">{stock.symbol}</div>
+                    <div className="text-xs text-[var(--muted-foreground)] truncate hidden sm:block">{stock.name}</div>
+                </div>
+
+                {/* Price */}
+                <div className="col-span-3 md:col-span-2 text-right">
+                    <div className="font-mono font-medium">
+                        {stock.currency === 'TRY' ? '₺' : '$'}{stock.price.toFixed(2)}
+                    </div>
+                    <div className={`text-xs font-bold ${stock.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {stock.change >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                    </div>
+                </div>
+
+                {/* Risk Score */}
+                <div className="col-span-3 md:col-span-2 text-right">
+                    <div className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-black
+                        ${stock.analysis.riskLevel === 'HIGH' ? 'bg-red-500/20 text-red-500' :
+                            stock.analysis.riskLevel === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-green-500/20 text-green-500'}`}>
+                        {stock.analysis.riskScore}
+                        {stock.analysis.riskLevel === 'HIGH' && <AlertTriangle size={10} />}
+                    </div>
+                </div>
+
+                {/* Trend (Desktop) */}
+                <div className="hidden md:block col-span-3">
+                    <div className="flex items-center gap-2">
+                        <TrendingUp size={16} className={trend === 'Bearish' ? 'text-red-500 rotate-180' : 'text-green-500'} />
+                        <div className="flex flex-col">
+                            <span className={`text-xs font-bold ${trend === 'Bullish' ? 'text-green-500' : 'text-red-500'}`}>
+                                {trend === 'Bullish' ? 'YÜKSELİŞ' : 'DÜŞÜŞ'}
+                            </span>
+                            <span className="text-[10px] text-[var(--muted-foreground)]">
+                                %{confidence} Güven
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Status / Hints */}
+                <div className="col-span-2 text-right">
+                    {stock.analysis.hints.length > 0 ? (
+                        <span className="text-[10px] px-2 py-0.5 bg-[var(--secondary)] rounded text-[var(--foreground)] truncate max-w-full inline-block">
+                            {t(`hints.${stock.analysis.hints[0]}`)}
+                        </span>
+                    ) : (
+                        <span className="text-[10px] text-green-500 font-medium">Stabil</span>
+                    )}
+                </div>
+            </div>
+        </Link>
+    );
+});
+MarketScannerRow.displayName = 'MarketScannerRow';
 
 export default function Analysis() {
     const { stocks, fetchStocks, isLoading } = useMarketStore();
@@ -38,8 +102,8 @@ export default function Analysis() {
         return sortConfig.direction === 'asc' ? <ArrowUp size={12} className="text-[var(--primary)]" /> : <ArrowDown size={12} className="text-[var(--primary)]" />;
     };
 
-    // Artificial Intelligence Scanner (Real Logic)
-    const scannedMarket = useMemo(() => {
+    // 1. Data Processing (Running AI Models) - Only runs when stocks update
+    const analyzedMarket = useMemo(() => {
         if (stocks.length === 0) return [];
 
         let filtered = stocks;
@@ -47,16 +111,19 @@ export default function Analysis() {
             filtered = stocks.filter(s => s.exchange === selectedExchange);
         }
 
-        const data = filtered.map(stock => {
+        return filtered.map(stock => {
+            // Heavy calculations here
             const analysis = AnalysisUtils.analyzeStock(stock.history, stock.volume);
-            return { ...stock, analysis };
+            const { trend, confidence } = AnalysisUtils.calculateTrend(stock.history, stock.symbol);
+            return { ...stock, analysis, trend, confidence };
         });
+    }, [stocks, selectedExchange]);
 
-        // Sorting Logic
+    // 2. Sorting Logic - Runs when Sort Config changes (very fast)
+    const sortedMarket = useMemo(() => {
+        const data = [...analyzedMarket];
+
         return data.sort((a, b) => {
-            const { trend: trendA, confidence: confA } = AnalysisUtils.calculateTrend(a.history, a.symbol);
-            const { trend: trendB, confidence: confB } = AnalysisUtils.calculateTrend(b.history, b.symbol);
-
             let valA: any = '';
             let valB: any = '';
 
@@ -75,8 +142,8 @@ export default function Analysis() {
                     break;
                 case 'trend':
                     // Sort by Trend Direction (Bullish > Bearish) then Confidence
-                    valA = (trendA === 'Bullish' ? 1 : 0) * 1000 + confA;
-                    valB = (trendB === 'Bullish' ? 1 : 0) * 1000 + confB;
+                    valA = (a.trend === 'Bullish' ? 1 : 0) * 1000 + a.confidence;
+                    valB = (b.trend === 'Bullish' ? 1 : 0) * 1000 + b.confidence;
                     break;
                 default:
                     return 0;
@@ -86,9 +153,9 @@ export default function Analysis() {
             if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
             return 0;
         });
-    }, [stocks, selectedExchange, sortConfig]);
+    }, [analyzedMarket, sortConfig]);
 
-    const riskyAssets = scannedMarket.filter(item => item.analysis.riskLevel === 'HIGH' || item.analysis.riskLevel === 'MEDIUM');
+    const riskyAssets = sortedMarket.filter(item => item.analysis.riskLevel === 'HIGH' || item.analysis.riskLevel === 'MEDIUM');
 
     const predictions = useMemo(() => {
         let filtered = stocks;
@@ -177,37 +244,41 @@ export default function Analysis() {
                         Piyasa Tarayıcısı
                     </h2>
                     <div className="text-sm text-[var(--muted-foreground)]">
-                        {scannedMarket.length} hisse tarandı
+                        {analyzedMarket.length} hisse tarandı
                     </div>
                 </div>
 
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden shadow-sm">
                     {/* Sortable Header */}
-                    <div className="grid grid-cols-12 gap-4 p-4 border-b border-[var(--border)] bg-[var(--secondary)]/30 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider sticky top-0 z-10 backdrop-blur-md">
-                        <div
-                            className="col-span-4 md:col-span-3 flex items-center gap-2 cursor-pointer hover:text-[var(--foreground)] transition-colors select-none"
+                    <div className="grid grid-cols-12 gap-4 p-4 border-b border-[var(--border)] bg-[var(--secondary)]/30 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider relative z-20">
+                        <button
+                            type="button"
+                            className="col-span-4 md:col-span-3 flex items-center gap-2 cursor-pointer hover:text-[var(--foreground)] transition-colors select-none text-left"
                             onClick={() => handleSort('symbol')}
                         >
                             Sembol <SortIcon column="symbol" />
-                        </div>
-                        <div
-                            className="col-span-3 md:col-span-2 text-right flex items-center justify-end gap-2 cursor-pointer hover:text-[var(--foreground)] transition-colors select-none"
+                        </button>
+                        <button
+                            type="button"
+                            className="col-span-3 md:col-span-2 justify-end flex items-center gap-2 cursor-pointer hover:text-[var(--foreground)] transition-colors select-none text-right"
                             onClick={() => handleSort('price')}
                         >
                             Fiyat <SortIcon column="price" />
-                        </div>
-                        <div
-                            className="col-span-3 md:col-span-2 text-right flex items-center justify-end gap-2 cursor-pointer hover:text-[var(--foreground)] transition-colors select-none"
+                        </button>
+                        <button
+                            type="button"
+                            className="col-span-3 md:col-span-2 justify-end flex items-center gap-2 cursor-pointer hover:text-[var(--foreground)] transition-colors select-none text-right"
                             onClick={() => handleSort('riskScore')}
                         >
                             Risk Analizi <SortIcon column="riskScore" />
-                        </div>
-                        <div
-                            className="hidden md:block col-span-3 flex items-center gap-2 cursor-pointer hover:text-[var(--foreground)] transition-colors select-none"
+                        </button>
+                        <button
+                            type="button"
+                            className="hidden md:block col-span-3 flex items-center gap-2 cursor-pointer hover:text-[var(--foreground)] transition-colors select-none text-left"
                             onClick={() => handleSort('trend')}
                         >
                             Trend Beklentisi <SortIcon column="trend" />
-                        </div>
+                        </button>
                         <div className="col-span-2 text-right flex items-center justify-end">
                             Durum
                         </div>
@@ -215,67 +286,18 @@ export default function Analysis() {
 
                     {/* Scrollable List */}
                     <div className="max-h-[600px] overflow-y-auto custom-scrollbar">
-                        {scannedMarket.map((stock, i) => {
-                            const { trend, confidence } = AnalysisUtils.calculateTrend(stock.history, stock.symbol);
+                        {sortedMarket.map((stock) => {
                             const isRisky = stock.analysis.riskLevel === 'HIGH' || stock.analysis.riskLevel === 'MEDIUM';
 
                             return (
-                                <Link key={stock.symbol} href={`/stock/${stock.symbol}`} className="block">
-                                    <div className={`grid grid-cols-12 gap-4 p-4 items-center border-b border-[var(--border)] hover:bg-[var(--secondary)]/50 transition-colors ${isRisky ? 'bg-[var(--destructive)]/5' : ''}`}>
-
-                                        {/* Symbol & Name */}
-                                        <div className="col-span-4 md:col-span-3">
-                                            <div className="font-bold text-[var(--foreground)]">{stock.symbol}</div>
-                                            <div className="text-xs text-[var(--muted-foreground)] truncate hidden sm:block">{stock.name}</div>
-                                        </div>
-
-                                        {/* Price */}
-                                        <div className="col-span-3 md:col-span-2 text-right">
-                                            <div className="font-mono font-medium">
-                                                {stock.currency === 'TRY' ? '₺' : '$'}{stock.price.toFixed(2)}
-                                            </div>
-                                            <div className={`text-xs font-bold ${stock.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                                                {stock.change >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
-                                            </div>
-                                        </div>
-
-                                        {/* Risk Score */}
-                                        <div className="col-span-3 md:col-span-2 text-right">
-                                            <div className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-black
-                                                ${stock.analysis.riskLevel === 'HIGH' ? 'bg-red-500/20 text-red-500' :
-                                                    stock.analysis.riskLevel === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-green-500/20 text-green-500'}`}>
-                                                {stock.analysis.riskScore}
-                                                {stock.analysis.riskLevel === 'HIGH' && <AlertTriangle size={10} />}
-                                            </div>
-                                        </div>
-
-                                        {/* Trend (Desktop) */}
-                                        <div className="hidden md:block col-span-3">
-                                            <div className="flex items-center gap-2">
-                                                <TrendingUp size={16} className={trend === 'Bearish' ? 'text-red-500 rotate-180' : 'text-green-500'} />
-                                                <div className="flex flex-col">
-                                                    <span className={`text-xs font-bold ${trend === 'Bullish' ? 'text-green-500' : 'text-red-500'}`}>
-                                                        {trend === 'Bullish' ? 'YÜKSELİŞ' : 'DÜŞÜŞ'}
-                                                    </span>
-                                                    <span className="text-[10px] text-[var(--muted-foreground)]">
-                                                        %{confidence} Güven
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Status / Hints */}
-                                        <div className="col-span-2 text-right">
-                                            {stock.analysis.hints.length > 0 ? (
-                                                <span className="text-[10px] px-2 py-0.5 bg-[var(--secondary)] rounded text-[var(--foreground)] truncate max-w-full inline-block">
-                                                    {t(`hints.${stock.analysis.hints[0]}`)}
-                                                </span>
-                                            ) : (
-                                                <span className="text-[10px] text-green-500 font-medium">Stabil</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </Link>
+                                <MarketScannerRow
+                                    key={stock.symbol}
+                                    stock={stock}
+                                    t={t}
+                                    trend={stock.trend}
+                                    confidence={stock.confidence}
+                                    isRisky={isRisky}
+                                />
                             );
                         })}
                     </div>
