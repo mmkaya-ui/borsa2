@@ -66,6 +66,18 @@
         "marketCap": "Marktkapitalisierung",
         "open": "Eröffnung",
         "realtimeTitle": "Echtzeit-Updates",
-        "realtimeDesc": "Diese Daten werden über eine WebSocket-Verbindung (simuliert) in Echtzeit aktualisiert."
+        "realtimeDesc": "Diese Daten werden über eine WebSocket-Verbindung (simuliert) in Echtzeit aktualisiert.",
+        "ranges": {
+            "5m": "5m",
+            "15m": "15m",
+            "1h": "1h",
+            "4h": "4h",
+            "1d": "1t",
+            "1w": "1w",
+            "1m": "1m",
+            "1y": "1j",
+            "5y": "5j",
+            "20y": "20j"
+        }
     }
 }
