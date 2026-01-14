@@ -51,13 +51,21 @@ const MOCK_STOCKS: Stock[] = [
 
 function generateRandomStockData(base: Stock | any): Stock {
     const basePrice = base.basePrice || 100;
-    const variation = (Math.random() - 0.5) * 5; // +/- 2.5% or dollars
-    const price = basePrice + variation;
-    const change = variation;
-    const changePercent = (change / basePrice) * 100;
+    // Fix: Variation should be proportional to price to avoid negative values for cheap assets
+    const percentVariation = (Math.random() - 0.5) * 0.05; // +/- 2.5%
+    const variation = basePrice * percentVariation;
 
-    // Generate 20 point history
-    const history = Array.from({ length: 20 }, () => basePrice + (Math.random() - 0.5) * 10);
+    const price = Math.max(0.01, basePrice + variation);
+    const change = variation;
+    const changePercent = percentVariation * 100;
+
+    // Generate 20 point history with proportional random walk
+    const history = [price];
+    for (let i = 1; i < 20; i++) {
+        const prev = history[i - 1];
+        const move = prev * (Math.random() - 0.5) * 0.02; // 2% daily check
+        history.push(Math.max(0.01, prev + move));
+    }
 
     return {
         symbol: base.symbol,
