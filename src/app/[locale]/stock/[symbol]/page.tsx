@@ -168,7 +168,7 @@ export default function StockDetail() {
                         <div>
                             <h4 className="font-semibold text-[var(--primary)]">{t('realtimeTitle')}</h4>
                             <p className="text-sm text-[var(--muted-foreground)] mt-1">
-                                {t('realtimeDesc')}
+                                {t('realtimeLiveDesc')}
                             </p>
                         </div>
                     </div>
