@@ -24,10 +24,7 @@ export const useMarketStore = create<MarketState>()(
     persist(
         (set, get) => ({
             stocks: [],
-            holdings: [
-                { symbol: 'AAPL', quantity: 10, buyPrice: 145.50 },
-                { symbol: 'BTC-USD', quantity: 0.5, buyPrice: 42000 },
-            ], // Initial Default
+            holdings: [], // Initial Default (Empty)
             isLoading: false,
             error: null,
 

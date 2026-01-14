@@ -34,6 +34,46 @@ export default function Analysis() {
         });
     }, [stocks]);
 
+    // Advanced Volatility Calculation (Standard Deviation of Log Returns)
+    const volatilityIndex = useMemo(() => {
+        if (stocks.length === 0) return 0;
+
+        let totalVolatility = 0;
+
+        stocks.forEach(stock => {
+            const prices = stock.history;
+            if (prices.length < 2) return;
+
+            // Calculate Log Returns
+            const returns = [];
+            for (let i = 1; i < prices.length; i++) {
+                returns.push(Math.log(prices[i] / prices[i - 1]));
+            }
+
+            // Calculate Standard Deviation
+            const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
+            const variance = returns.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / returns.length;
+            const stdDev = Math.sqrt(variance);
+
+            // Annualize Volatility (assuming daily data, x sqrt(252)) - simplified for mock scaling
+            // For this demo, we'll scale it to a 0-100 index relative to a baseline
+            totalVolatility += stdDev * 1000; // Scaling factor
+        });
+
+        const avgVol = totalVolatility / stocks.length;
+        // Cap at 100, Min 0
+        return Math.min(Math.max(Math.round(avgVol), 0), 100);
+    }, [stocks]);
+
+    const getVolatilityStatus = (score: number) => {
+        if (score < 20) return { label: "LOW", color: "text-emerald-500", desc: "Düşük risk, stabil piyasa." };
+        if (score < 50) return { label: "MODERATE", color: "text-yellow-500", desc: "Orta seviye risk, dikkatli olunmalı." };
+        if (score < 80) return { label: "HIGH", color: "text-orange-500", desc: "Yüksek volatilite, ani değişimler beklenebilir." };
+        return { label: "EXTREME", color: "text-red-500", desc: "Aşırı volatilite! Yüksek risk uyarısı." };
+    };
+
+    const volStatus = getVolatilityStatus(volatilityIndex);
+
     return (
         <div className="max-w-7xl mx-auto flex flex-col gap-8">
             <header>
@@ -96,16 +136,33 @@ export default function Analysis() {
                     </div>
                 </div>
 
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
-                    <div className="flex items-center gap-2 mb-6 text-[var(--accent)]">
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 flex flex-col">
+                    <div className="flex items-center gap-2 mb-2 text-[var(--accent)]">
                         <Activity size={24} />
                         <h2 className="text-xl font-bold">{t('volatility')}</h2>
                     </div>
-                    <p className="text-[var(--muted-foreground)] mb-4">
-                        {t('volatilityDesc')}
+                    <p className="text-[var(--muted-foreground)] mb-8 text-sm">
+                        {volStatus.desc}
                     </p>
-                    <div className="h-48 rounded-lg bg-[var(--secondary)]/50 flex items-center justify-center text-[var(--muted-foreground)]">
-                        Gauge Placeholder
+
+                    <div className="flex-1 flex flex-col items-center justify-center relative min-h-[160px]">
+                        {/* Gauge Visualization */}
+                        <div className="relative w-64 h-32 overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-full rounded-t-full bg-[var(--secondary)]"></div>
+                            <div
+                                className={`absolute top-0 left-0 w-full h-full rounded-t-full origin-bottom transition-transform duration-1000 ease-out bg-gradient-to-t from-[var(--primary)] to-[var(--accent)]`}
+                                style={{ transform: `rotate(${(volatilityIndex / 100) * 180 - 180}deg)` }}
+                            ></div>
+                        </div>
+                        <div className="absolute bottom-0 text-center translate-y-1">
+                            <span className={`text-4xl font-black tracking-tighter ${volStatus.color}`}>{volatilityIndex.toFixed(1)}</span>
+                            <span className="text-xs text-[var(--muted-foreground)] block uppercase tracking-widest mt-1">VIX Score</span>
+                        </div>
+                    </div>
+                    <div className="text-center mt-6">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${volStatus.color} border-current opacity-80`}>
+                            {volStatus.label}
+                        </span>
                     </div>
                 </div>
             </div>
