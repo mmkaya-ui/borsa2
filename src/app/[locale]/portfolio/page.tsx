@@ -40,6 +40,7 @@ export default function Portfolio() {
                     </p>
                 </div>
                 <button
+                    type="button"
                     onClick={() => setIsAddModalOpen(true)}
                     className="flex items-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity"
                 >
