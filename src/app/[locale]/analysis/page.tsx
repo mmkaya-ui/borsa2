@@ -127,7 +127,7 @@ export default function Analysis() {
                                 </div>
                                 <div className="text-right">
                                     <div className={`font-bold ${p.trend === 'Bullish' ? 'text-[var(--primary)]' : 'text-[var(--destructive)]'}`}>
-                                        {p.trend}
+                                        {p.trend === 'Bullish' ? t('bullish') : t('bearish')}
                                     </div>
                                     <div className="text-xs text-[var(--muted-foreground)]">{p.confidence}% {t('confidence')}</div>
                                 </div>
