@@ -30,7 +30,7 @@ export default function Sidebar() {
                             <li key={item.href}>
                                 <Link
                                     href={item.href}
-                                    className={`group flex items-center rounded-lg p-2 transition-colors ${isActive
+                                    className={`group flex items-center rounded-lg p-2 transition-colors relative z-20 ${isActive
                                         ? "bg-[var(--primary)]/10 text-[var(--primary)]"
                                         : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
                                         }`}

@@ -3,11 +3,17 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useMarketStore } from "@/store/marketStore";
-import Chart from "@/components/Chart";
 import { ArrowLeft, RefreshCw, TrendingUp } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Stock } from "@/lib/api";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
+
+// Dynamically import Chart with no SSR to prevent hydration issues
+const Chart = dynamic(() => import("@/components/Chart"), {
+    ssr: false,
+    loading: () => <div className="h-[400px] w-full animate-pulse bg-[var(--border)]/30 rounded-xl" />
+});
 
 export default function StockDetail() {
     const params = useParams();
@@ -98,11 +104,12 @@ export default function StockDetail() {
                             ))}
                         </div>
                     </div>
-                    {stock.history && stock.history.length > 0 ? (
+                    {/* Render Chart safely only when mounted */}
+                    {isMounted && stock.history && stock.history.length > 0 ? (
                         <Chart data={chartData} color={isPositive ? "var(--primary)" : "var(--destructive)"} />
                     ) : (
                         <div className="h-[400px] flex items-center justify-center text-[var(--muted-foreground)]">
-                            No chart data available
+                            {t('loading')}
                         </div>
                     )}
                 </div>
