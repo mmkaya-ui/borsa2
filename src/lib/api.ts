@@ -141,8 +141,8 @@ export const MarketAPI = {
         const lowerQuery = query.toLowerCase();
 
         if (!query) {
-            // Return a mix of stocks (e.g., 5 BIST, 5 NASDAQ) as default
-            const indices = [0, 1, 2, 3, 4, 15, 16, 17, 18, 19]; // Selection from BIST and NASDAQ
+            // Return a mix of stocks (e.g., BIST, NASDAQ, CRYPTO) as default
+            const indices = [0, 1, 2, 15, 16, 17, 25, 26, 27]; // Balanced selection
             return indices.map(i => MOCK_STOCKS[i]).filter(Boolean).map(generateRandomStockData);
         }
 
