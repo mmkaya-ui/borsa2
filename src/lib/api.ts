@@ -8,6 +8,10 @@ export interface Stock {
     exchange: 'BIST' | 'NASDAQ' | 'CRYPTO'; // Added exchange
     currency: 'TRY' | 'USD'; // Added currency
     history: number[]; // Simple sparkline data
+    open: number;
+    prevClose: number;
+    dayHigh: number;
+    dayLow: number;
 }
 
 const MOCK_STOCKS: Stock[] = [
@@ -91,6 +95,17 @@ function generateRandomStockData(base: Stock | any): Stock {
     const change = variation; // This was missing correct calc before
     const changePercent = percentVariation * 100;
 
+    // Derived OHLC Data
+    const prevClose = basePrice;
+    const gap = basePrice * (Math.random() - 0.5) * 0.01; // +/- 0.5% gap
+    const open = basePrice + gap;
+
+    // Simulate High/Low
+    const maxVal = Math.max(price, open, prevClose);
+    const minVal = Math.min(price, open, prevClose);
+    const dayHigh = maxVal * (1 + Math.random() * 0.02);
+    const dayLow = minVal * (1 - Math.random() * 0.02);
+
     // Generate 20 point history with proportional random walk
     const history = [price];
     for (let i = 1; i < 20; i++) {
@@ -109,7 +124,11 @@ function generateRandomStockData(base: Stock | any): Stock {
         volume: Math.floor(Math.random() * 1000000),
         exchange: base.exchange as 'BIST' | 'NASDAQ' | 'CRYPTO',
         currency: base.exchange === 'BIST' ? 'TRY' : 'USD', // Helper
-        history
+        history,
+        open: parseFloat(open.toFixed(2)),
+        prevClose: parseFloat(prevClose.toFixed(2)),
+        dayHigh: parseFloat(dayHigh.toFixed(2)),
+        dayLow: parseFloat(dayLow.toFixed(2))
     };
 }
 

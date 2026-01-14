@@ -159,7 +159,25 @@ export default function StockDetail() {
                             <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
                                 <span className="text-[var(--muted-foreground)]">{t('open')}</span>
                                 <span className="font-mono">
-                                    {stock.currency === 'TRY' ? '₺' : '$'}{(stock.price - stock.change).toFixed(2)}
+                                    {stock.currency === 'TRY' ? '₺' : '$'}{stock.open.toFixed(2)}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
+                                <span className="text-[var(--muted-foreground)]">{t('prevClose')}</span>
+                                <span className="font-mono">
+                                    {stock.currency === 'TRY' ? '₺' : '$'}{stock.prevClose.toFixed(2)}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
+                                <span className="text-[var(--muted-foreground)]">{t('dayHigh')}</span>
+                                <span className="font-mono text-green-500">
+                                    {stock.currency === 'TRY' ? '₺' : '$'}{stock.dayHigh.toFixed(2)}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
+                                <span className="text-[var(--muted-foreground)]">{t('dayLow')}</span>
+                                <span className="font-mono text-red-500">
+                                    {stock.currency === 'TRY' ? '₺' : '$'}{stock.dayLow.toFixed(2)}
                                 </span>
                             </div>
                         </div>
