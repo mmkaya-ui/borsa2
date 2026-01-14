@@ -3,7 +3,7 @@ import { useMarketStore } from "@/store/marketStore";
 import { AnalysisUtils } from "@/lib/analysisUtils";
 import { Stock } from "@/lib/api";
 
-type SortKey = 'symbol' | 'price' | 'riskScore' | 'trend';
+type SortKey = 'symbol' | 'price' | 'riskScore' | 'trend' | 'change' | 'volume';
 export type SortDirection = 'asc' | 'desc';
 
 interface SortConfig {
@@ -54,6 +54,14 @@ export const useMarketAnalysis = () => {
                 case 'price':
                     valA = a.price;
                     valB = b.price;
+                    break;
+                case 'change':
+                    valA = a.changePercent;
+                    valB = b.changePercent;
+                    break;
+                case 'volume':
+                    valA = a.volume;
+                    valB = b.volume;
                     break;
                 case 'riskScore':
                     valA = a.analysis.riskScore;
