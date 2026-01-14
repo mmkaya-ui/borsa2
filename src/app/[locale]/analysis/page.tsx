@@ -5,11 +5,21 @@ import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, TrendingUp, Activity, Info, CheckCircle2, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
-import { AnalysisUtils } from "@/lib/analysisUtils";
 import { memo } from "react";
+import { useMarketAnalysis } from "@/hooks/useMarketAnalysis";
+
+import { Stock } from "@/lib/api";
+
+interface MarketScannerRowProps {
+    stock: Stock & { analysis: any }; // Enhancing Stock with analysis property check
+    t: any; // next-intl types are complex, keeping simple for now or could import Translations type
+    trend: 'Bullish' | 'Bearish';
+    confidence: number;
+    isRisky: boolean;
+}
 
 // Memoized Row Component
-const MarketScannerRow = memo(({ stock, t, trend, confidence, isRisky }: any) => {
+const MarketScannerRow = memo(({ stock, t, trend, confidence, isRisky }: MarketScannerRowProps) => {
     return (
         <Link href={`/stock/${stock.symbol}`} className="block">
             <div className={`grid grid-cols-12 gap-4 p-4 items-center border-b border-[var(--border)] hover:bg-[var(--secondary)]/50 transition-colors ${isRisky ? 'bg-[var(--destructive)]/5' : ''}`}>
@@ -75,6 +85,16 @@ export default function Analysis() {
     const { stocks, fetchStocks, isLoading } = useMarketStore();
     const t = useTranslations('Analysis');
 
+    // Custom Hook for Senior Architecture
+    const {
+        sortedMarket,
+        analyzedCount,
+        selectedExchange,
+        setSelectedExchange,
+        sortConfig,
+        handleSort
+    } = useMarketAnalysis();
+
     useEffect(() => {
         if (stocks.length === 0) {
             fetchStocks();
@@ -85,89 +105,19 @@ export default function Analysis() {
 
     // ... inside component
 
-    const [selectedExchange, setSelectedExchange] = useState<string>('ALL');
 
-    // Sorting State
-    const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: 'riskScore', direction: 'desc' });
-
-    const handleSort = (key: string) => {
-        setSortConfig(current => ({
-            key,
-            direction: current.key === key && current.direction === 'desc' ? 'asc' : 'desc'
-        }));
-    };
 
     const SortIcon = ({ column }: { column: string }) => {
         if (sortConfig.key !== column) return <ArrowUpDown size={12} className="opacity-30" />;
         return sortConfig.direction === 'asc' ? <ArrowUp size={12} className="text-[var(--primary)]" /> : <ArrowDown size={12} className="text-[var(--primary)]" />;
     };
 
-    // 1. Data Processing (Running AI Models) - Only runs when stocks update
-    const analyzedMarket = useMemo(() => {
-        if (stocks.length === 0) return [];
 
-        let filtered = stocks;
-        if (selectedExchange !== 'ALL') {
-            filtered = stocks.filter(s => s.exchange === selectedExchange);
-        }
 
-        return filtered.map(stock => {
-            // Heavy calculations here
-            const analysis = AnalysisUtils.analyzeStock(stock.history, stock.volume);
-            const { trend, confidence } = AnalysisUtils.calculateTrend(stock.history, stock.symbol);
-            return { ...stock, analysis, trend, confidence };
-        });
-    }, [stocks, selectedExchange]);
 
-    // 2. Sorting Logic - Runs when Sort Config changes (very fast)
-    const sortedMarket = useMemo(() => {
-        const data = [...analyzedMarket];
 
-        return data.sort((a, b) => {
-            let valA: any = '';
-            let valB: any = '';
-
-            switch (sortConfig.key) {
-                case 'symbol':
-                    valA = a.symbol;
-                    valB = b.symbol;
-                    break;
-                case 'price':
-                    valA = a.price;
-                    valB = b.price;
-                    break;
-                case 'riskScore':
-                    valA = a.analysis.riskScore;
-                    valB = b.analysis.riskScore;
-                    break;
-                case 'trend':
-                    // Sort by Trend Direction (Bullish > Bearish) then Confidence
-                    valA = (a.trend === 'Bullish' ? 1 : 0) * 1000 + a.confidence;
-                    valB = (b.trend === 'Bullish' ? 1 : 0) * 1000 + b.confidence;
-                    break;
-                default:
-                    return 0;
-            }
-
-            if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
-            if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
-            return 0;
-        });
-    }, [analyzedMarket, sortConfig]);
-
-    const riskyAssets = sortedMarket.filter(item => item.analysis.riskLevel === 'HIGH' || item.analysis.riskLevel === 'MEDIUM');
-
-    const predictions = useMemo(() => {
-        let filtered = stocks;
-        if (selectedExchange !== 'ALL') {
-            filtered = stocks.filter(s => s.exchange === selectedExchange);
-        }
-
-        return filtered.map(stock => {
-            const { trend, confidence } = AnalysisUtils.calculateTrend(stock.history, stock.symbol);
-            return { ...stock, trend, confidence };
-        });
-    }, [stocks, selectedExchange]);
+    // Logic moved to hook, predictions not used in this view anymore or can be derived from hook if needed
+    // const predictions = useMemo(...
 
     // Advanced Volatility Calculation (Standard Deviation of Log Returns)
     const volatilityIndex = useMemo(() => {
@@ -244,7 +194,7 @@ export default function Analysis() {
                         Piyasa Tarayıcısı
                     </h2>
                     <div className="text-sm text-[var(--muted-foreground)]">
-                        {analyzedMarket.length} hisse tarandı
+                        {analyzedCount} hisse tarandı
                     </div>
                 </div>
 
