@@ -4,13 +4,13 @@ import { Stock } from "@/lib/api";
 import { Link } from "@/i18n/routing";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer, YAxis } from "recharts";
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 
 interface StockCardProps {
     stock: Stock;
 }
 
-export default function StockCard({ stock }: StockCardProps) {
+export default memo(function StockCard({ stock }: StockCardProps) {
     const isPositive = stock.change >= 0;
 
     const chartData = useMemo(() => {
@@ -59,4 +59,4 @@ export default function StockCard({ stock }: StockCardProps) {
             </div>
         </Link>
     );
-}
+});

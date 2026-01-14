@@ -19,7 +19,6 @@ export default function Chart({ data, color = "var(--primary)", range = "1D" }: 
 
             // Normalize range to ensure matching works
             const r = range.toUpperCase().trim();
-            console.log(`Chart Range: ${r}`);
 
             // Generate mock labels based on range
             if (['1D', '1H', '5M', '4H', '15M'].includes(r)) {
