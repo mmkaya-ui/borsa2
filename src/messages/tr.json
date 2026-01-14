@@ -86,6 +86,8 @@
             "riskScore": "Manipülasyon Risk Skoru",
             "rsi": "RSI Göstergesi",
             "volatility": "Volatilite",
+            "reasonTitle": "🔎 Risk Analizi ve Sebepleri",
+            "diagnosisIntro": "Yapay zeka motorumuz bu varlık üzerinde anormal aktiviteler tespit etmiştir. Risk puanını yükselten temel sebepler:",
             "hints": {
                 "rsi_high": "⚠️ RSI çok yüksek (Aşırı Alım). Düzeltme gelebilir.",
                 "rsi_low": "🟢 RSI çok düşük (Aşırı Satım). Tepki alımı beklenebilir.",

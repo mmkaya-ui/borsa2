@@ -118,8 +118,8 @@ export default function StockDetail() {
                                     key={range}
                                     onClick={() => setSelectedRange(range.toUpperCase())}
                                     className={`relative z-10 px-4 py-2 rounded-lg text-sm font-bold transition-all active:scale-95 whitespace-nowrap min-w-[3rem] ${selectedRange === range.toUpperCase()
-                                            ? 'bg-[var(--primary)] text-black shadow-lg shadow-[var(--primary)]/20'
-                                            : 'bg-[var(--secondary)]/50 text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] border border-transparent'
+                                        ? 'bg-[var(--primary)] text-black shadow-lg shadow-[var(--primary)]/20'
+                                        : 'bg-[var(--secondary)]/50 text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] border border-transparent'
                                         }`}
                                 >
                                     {t(`ranges.${range}`, { fallback: range.toUpperCase() })}
@@ -184,12 +184,12 @@ export default function StockDetail() {
                         <div className="flex-1 flex flex-col items-center justify-center p-4 bg-[var(--secondary)]/30 rounded-lg">
                             <span className="text-sm text-[var(--muted-foreground)] uppercase tracking-wider mb-1">{tAnalysis('riskScore')}</span>
                             <div className={`text-4xl font-black ${analysis.riskLevel === 'HIGH' ? 'text-[var(--destructive)]' :
-                                    analysis.riskLevel === 'MEDIUM' ? 'text-yellow-500' : 'text-green-500'
+                                analysis.riskLevel === 'MEDIUM' ? 'text-yellow-500' : 'text-green-500'
                                 }`}>
                                 {analysis.riskScore}/100
                             </div>
                             <span className={`text-xs font-bold px-2 py-0.5 rounded mt-2 ${analysis.riskLevel === 'HIGH' ? 'bg-[var(--destructive)]/20 text-[var(--destructive)]' :
-                                    analysis.riskLevel === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-green-500/20 text-green-500'
+                                analysis.riskLevel === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-green-500/20 text-green-500'
                                 }`}>
                                 {tAnalysis(`levels.${analysis.riskLevel}`)}
                             </span>
@@ -206,17 +206,27 @@ export default function StockDetail() {
                                 <span className="font-mono font-medium">{analysis.volatility.toFixed(4)}</span>
                             </div>
 
-                            <div className="mt-3">
+                            <div className="mt-4 pt-4 border-t border-[var(--border)]">
+                                <h4 className="text-sm font-bold text-[var(--foreground)] mb-2 flex items-center gap-2">
+                                    {tAnalysis('reasonTitle')}
+                                </h4>
                                 {analysis.hints.length > 0 ? (
-                                    analysis.hints.map((hint, i) => (
-                                        <div key={i} className="flex items-start gap-2 text-sm text-[var(--foreground)] mb-1">
-                                            <span>•</span>
-                                            <span>{tAnalysis(`hints.${hint}`)}</span>
+                                    <>
+                                        <p className="text-xs text-[var(--muted-foreground)] mb-3">
+                                            {tAnalysis('diagnosisIntro')}
+                                        </p>
+                                        <div className="space-y-2">
+                                            {analysis.hints.map((hint, i) => (
+                                                <div key={i} className="flex items-start gap-2 text-sm p-2 rounded bg-[var(--background)] border border-[var(--border)]">
+                                                    <span className="mt-0.5 text-[var(--destructive)]">●</span>
+                                                    <span className="text-[var(--foreground)]">{tAnalysis(`hints.${hint}`)}</span>
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))
+                                    </>
                                 ) : (
-                                    <div className="flex items-start gap-2 text-sm text-[var(--muted-foreground)]">
-                                        <span>•</span>
+                                    <div className="flex items-start gap-2 text-sm text-[var(--muted-foreground)] p-2 bg-[var(--secondary)]/20 rounded">
+                                        <span className="text-green-500">✔</span>
                                         <span>{tAnalysis('hints.safe')}</span>
                                     </div>
                                 )}
