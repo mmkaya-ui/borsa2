@@ -9,6 +9,8 @@ export default function Sidebar() {
     const pathname = usePathname();
     const t = useTranslations('Navigation');
 
+    const cleanPathname = pathname.replace(/^\/(tr|en|de)/, '') || '/';
+
     const navItems = [
         { name: t('markets'), href: "/", icon: BarChart3 },
         { name: t('portfolio'), href: "/portfolio", icon: Wallet },
@@ -26,14 +28,14 @@ export default function Sidebar() {
                 </div>
                 <ul className="space-y-2 font-medium">
                     {navItems.map((item) => {
-                        const isActive = pathname === item.href;
+                        const isActive = cleanPathname === item.href;
                         return (
                             <li key={item.href}>
                                 <Link
                                     href={item.href}
                                     className={`group flex items-center rounded-lg p-2 transition-colors ${isActive
-                                            ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                                            : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
+                                        ? "bg-[var(--primary)]/10 text-[var(--primary)]"
+                                        : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
                                         }`}
                                 >
                                     <item.icon className={`h-5 w-5 ${isActive ? "text-[var(--primary)]" : "text-[var(--muted-foreground)] group-hover:text-[var(--foreground)]"}`} />
