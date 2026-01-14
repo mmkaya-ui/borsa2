@@ -70,9 +70,11 @@ export default function StockDetail() {
 
     // AI Analysis Logic
     const analysis: AnalysisResult | null = useMemo(() => {
-        if (!stock || !chartData || chartData.length < 5) return null;
-        return AnalysisUtils.analyzeStock(chartData, stock.volume);
-    }, [chartData, stock]);
+        // Fix: Use stock.history (recent/live data) instead of chartData (which changes with range).
+        // This ensures risk score is consistent regardless of whether user looks at 5Y or 1D chart.
+        if (!stock || !stock.history || stock.history.length < 5) return null;
+        return AnalysisUtils.analyzeStock(stock.history, stock.volume);
+    }, [stock]);
 
     if (!isMounted) return <div className="flex h-screen items-center justify-center animate-pulse text-[var(--muted-foreground)]">{t('loading')}</div>;
 
