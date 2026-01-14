@@ -111,18 +111,24 @@ export const MarketAPI = {
         const stock = MOCK_STOCKS.find(s => s.symbol === symbol);
         const basePrice = stock ? (stock as any).basePrice : 100;
 
+        // Ensure consistency with "Scanner" by applying same volatility rules
+        const isVolatile = ['DOGE-USD', 'SASA', 'XRP-USD'].includes(symbol);
+
         let points = 20;
-        let volatility = 0.02; // 2%
+        let volatility = isVolatile ? 0.15 : 0.02; // Default 2%, but 15% for risky assets matching scanner
+
+        // Scale volatility based on range, but keep relative riskiness
+        const volMultiplier = isVolatile ? 4 : 1; // Risky assets are 4x more volatile
 
         switch (range) {
-            case '5M': points = 10; volatility = 0.005; break;
-            case '1H': points = 24; volatility = 0.01; break;
-            case '1D': points = 48; volatility = 0.02; break; // Every 30 mins
-            case '1W': points = 7; volatility = 0.05; break;
-            case '1M': points = 30; volatility = 0.08; break;
-            case '1Y': points = 52; volatility = 0.20; break; // Weekly
-            case '5Y': points = 60; volatility = 0.40; break;
-            default: points = 20; volatility = 0.05;
+            case '5M': points = 10; volatility = 0.005 * volMultiplier; break;
+            case '1H': points = 24; volatility = 0.01 * volMultiplier; break;
+            case '1D': points = 48; volatility = 0.02 * volMultiplier; break;
+            case '1W': points = 7; volatility = 0.05 * volMultiplier; break;
+            case '1M': points = 30; volatility = 0.08 * volMultiplier; break;
+            case '1Y': points = 52; volatility = 0.20 * volMultiplier; break;
+            case '5Y': points = 60; volatility = 0.40 * volMultiplier; break;
+            default: points = 20; volatility = 0.05 * volMultiplier;
         }
 
         const history: number[] = [];

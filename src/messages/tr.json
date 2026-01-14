@@ -45,6 +45,24 @@
             "1y": "1Y",
             "5y": "5Y",
             "20y": "20Y"
+        },
+        "riskScore": "Manipülasyon Risk Skoru",
+        "title": "Yapay Zeka Destekli Analiz",
+        "rsi": "RSI Göstergesi",
+        "volatility": "Volatilite",
+        "reasonTitle": "🔎 Risk Analizi ve Sebepleri",
+        "diagnosisIntro": "Yapay zeka motorumuz bu varlık üzerinde anormal aktiviteler tespit etmiştir. Risk puanını yükselten temel sebepler:",
+        "hints": {
+            "rsi_high": "⚠️ RSI çok yüksek (Aşırı Alım). Düzeltme gelebilir.",
+            "rsi_low": "🟢 RSI çok düşük (Aşırı Satım). Tepki alımı beklenebilir.",
+            "volatility_extreme": "⚠️ Anlık fiyat hareketleri çok sert (Yüksek Volatilite).",
+            "pump_risk": "🚨 Şüpheli Yükseliş Formasyonu (Pump Olasılığı).",
+            "safe": "✅ Piyasa hareketleri organik görünüyor."
+        },
+        "levels": {
+            "LOW": "DÜŞÜK",
+            "MEDIUM": "ORTA",
+            "HIGH": "YÜKSEK"
         }
     },
     "Settings": {
@@ -80,26 +98,6 @@
             "1y": "1Y",
             "5y": "5Y",
             "20y": "20Y"
-        },
-        "Analysis": {
-            "title": "Yapay Zeka Destekli Analiz",
-            "riskScore": "Manipülasyon Risk Skoru",
-            "rsi": "RSI Göstergesi",
-            "volatility": "Volatilite",
-            "reasonTitle": "🔎 Risk Analizi ve Sebepleri",
-            "diagnosisIntro": "Yapay zeka motorumuz bu varlık üzerinde anormal aktiviteler tespit etmiştir. Risk puanını yükselten temel sebepler:",
-            "hints": {
-                "rsi_high": "⚠️ RSI çok yüksek (Aşırı Alım). Düzeltme gelebilir.",
-                "rsi_low": "🟢 RSI çok düşük (Aşırı Satım). Tepki alımı beklenebilir.",
-                "volatility_extreme": "⚠️ Anlık fiyat hareketleri çok sert (Yüksek Volatilite).",
-                "pump_risk": "🚨 Şüpheli Yükseliş Formasyonu (Pump Olasılığı).",
-                "safe": "✅ Piyasa hareketleri organik görünüyor."
-            },
-            "levels": {
-                "LOW": "DÜŞÜK",
-                "MEDIUM": "ORTA",
-                "HIGH": "YÜKSEK"
-            }
         }
     }
 }
