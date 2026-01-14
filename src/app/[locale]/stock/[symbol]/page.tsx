@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { useMarketStore } from "@/store/marketStore";
 import Chart from "@/components/Chart";
 import { ArrowLeft, RefreshCw, TrendingUp } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { Stock } from "@/lib/api";
 import { useTranslations } from "next-intl";
 

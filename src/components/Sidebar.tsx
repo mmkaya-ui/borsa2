@@ -1,15 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, Link } from "@/i18n/routing";
 import { BarChart3, Wallet, Search, Settings, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export default function Sidebar() {
-    const pathname = usePathname();
+    const pathname = usePathname(); // This hook from @/i18n/routing returns path WITHOUT locale prefix
     const t = useTranslations('Navigation');
-
-    const cleanPathname = pathname.replace(/^\/(tr|en|de)/, '') || '/';
 
     const navItems = [
         { name: t('markets'), href: "/", icon: BarChart3 },
@@ -28,7 +25,7 @@ export default function Sidebar() {
                 </div>
                 <ul className="space-y-2 font-medium">
                     {navItems.map((item) => {
-                        const isActive = cleanPathname === item.href;
+                        const isActive = pathname === item.href;
                         return (
                             <li key={item.href}>
                                 <Link
