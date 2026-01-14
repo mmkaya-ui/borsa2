@@ -13,29 +13,46 @@ export default function Chart({ data, color = "var(--primary)", range = "1D" }: 
     const chartData = useMemo(() => {
         if (!data || data.length === 0) return [];
 
+        const now = new Date();
+        const endTime = now.getTime();
+        const r = range.toUpperCase().trim();
+
+        // Determine duration in milliseconds based on range
+        let durationMs = 24 * 60 * 60 * 1000; // Default 1D
+        let isIntraday = false;
+
+        switch (r) {
+            case '5M': durationMs = 5 * 60 * 1000; isIntraday = true; break;
+            case '15M': durationMs = 15 * 60 * 1000; isIntraday = true; break;
+            case '1H': durationMs = 60 * 60 * 1000; isIntraday = true; break;
+            case '4H': durationMs = 4 * 60 * 60 * 1000; isIntraday = true; break;
+            case '1D': durationMs = 9 * 60 * 60 * 1000; isIntraday = true; break; // Market Day (9h)
+            case '1W': durationMs = 7 * 24 * 60 * 60 * 1000; break;
+            case '1M': durationMs = 30 * 24 * 60 * 60 * 1000; break;
+            case '1Y': durationMs = 365 * 24 * 60 * 60 * 1000; break;
+            case '5Y': durationMs = 5 * 365 * 24 * 60 * 60 * 1000; break;
+            case '20Y': durationMs = 20 * 365 * 24 * 60 * 60 * 1000; break;
+        }
+
+        const startTime = endTime - durationMs;
+        const totalPoints = data.length;
+
         return data.map((val, i) => {
+            // Calculate exact timestamp for this point
+            // We assume equal spacing between points
+            const pointTimeMs = startTime + (i / (totalPoints - 1 || 1)) * durationMs;
+            const pointDate = new Date(pointTimeMs);
             let label = "";
-            const totalPoints = data.length;
 
-            // Normalize range to ensure matching works
-            const r = range.toUpperCase().trim();
-
-            // Generate mock labels based on range
-            if (['1D', '1H', '5M', '4H', '15M'].includes(r)) {
-                // Time based
-                const hour = Math.floor(9 + (i / totalPoints) * 8); // Market hours 9-17
-                const minute = Math.floor((i % 4) * 15).toString().padStart(2, '0');
-                label = `${hour}:${minute}`;
-            } else if (['1W', '1M'].includes(r)) {
-                // Date based (Days)
-                const date = new Date();
-                date.setDate(date.getDate() - (totalPoints - i));
-                label = date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+            if (isIntraday) {
+                // For intraday, show HH:mm
+                label = pointDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+            } else if (r === '1W' || r === '1M') {
+                // For short term history, show Day Month (e.g. 14 Jan)
+                label = pointDate.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
             } else {
-                // Year based (Months/Years)
-                const date = new Date();
-                date.setMonth(date.getMonth() - Math.floor((totalPoints - i) / 2)); // Approximate
-                label = date.toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
+                // For long term, show Month Year (e.g. Jan 24)
+                label = pointDate.toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
             }
 
             return {
