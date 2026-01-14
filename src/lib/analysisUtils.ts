@@ -50,12 +50,19 @@ export const AnalysisUtils = {
             hints.push('rsi_low'); // Oversold
         }
 
-        // Volatility Check (Simplified Z-Score proxy)
-        const lastPrice = data[data.length - 1];
-        const prevPrice = data[data.length - 2] || lastPrice;
-        const percentChange = Math.abs((lastPrice - prevPrice) / prevPrice);
+        // Volatility Check (Average Daily Range / Standard Deviation of Returns)
+        // More robust than just the last tick
+        let maxMove = 0;
+        let totalMove = 0;
+        for (let i = 1; i < data.length; i++) {
+            const move = Math.abs((data[i] - data[i - 1]) / data[i - 1]);
+            totalMove += move;
+            if (move > maxMove) maxMove = move;
+        }
+        const avgMove = totalMove / (data.length - 1 || 1);
 
-        if (percentChange > 0.02) { // >2% movement in one tick (Sensitive for demo)
+        // If average move > 1% or any single move > 3%
+        if (avgMove > 0.01 || maxMove > 0.03) {
             riskScore += 40;
             hints.push('volatility_extreme');
         }
