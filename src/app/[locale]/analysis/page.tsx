@@ -47,7 +47,7 @@ export default function Analysis() {
         }
 
         return filtered.map(stock => {
-            const { trend, confidence } = AnalysisUtils.calculateTrend(stock.history);
+            const { trend, confidence } = AnalysisUtils.calculateTrend(stock.history, stock.symbol);
             return { ...stock, trend, confidence };
         });
     }, [stocks, selectedExchange]);

@@ -180,7 +180,7 @@ export default function StockDetail() {
                 // Fix: Always use the stock's recent 'live' history for prediction, 
                 // regardless of the chart's selected time range (e.g. 5Y).
                 // This ensures the prediction refers to "Current Momentum" vs "Historical View".
-                const { trend, confidence } = AnalysisUtils.calculateTrend(stock.history);
+                const { trend, confidence } = AnalysisUtils.calculateTrend(stock.history, stock.symbol);
                 return (
                     <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm flex items-center justify-between animate-in slide-in-from-bottom-3 duration-500">
                         <div className="flex items-center gap-4">

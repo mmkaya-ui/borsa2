@@ -93,13 +93,33 @@ export const AnalysisUtils = {
         };
     },
 
-    calculateTrend: (history: number[]): { trend: 'Bullish' | 'Bearish', confidence: number } => {
+    // Helper for deterministic randomness based on string
+    hashString: (str: string): number => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return Math.abs(hash);
+    },
+
+    calculateTrend: (history: number[], symbol?: string): { trend: 'Bullish' | 'Bearish', confidence: number } => {
         if (history.length < 2) return { trend: 'Bullish', confidence: 0 };
         // Simple logic: compare last vs first point of visible history
-        // In a real app this would use MA crosses or Regression
         const trend = history[history.length - 1] > history[0] ? 'Bullish' : 'Bearish';
-        // Mock confidence based on "clarity" of trend
-        const confidence = Math.floor(Math.random() * 30) + 70;
+
+        // Deterministic confidence based on Symbol (if provided) or last price
+        // Using symbol ensures it stays EXACTLY the same across different chart ranges/fetches
+        let seed = 0;
+        if (symbol) {
+            seed = AnalysisUtils.hashString(symbol);
+        } else {
+            // Fallback to price if symbol missing (less stable across ranges)
+            seed = Math.floor(history[history.length - 1] * 100);
+        }
+
+        const confidence = (seed % 30) + 70; // 70-100% range
         return { trend, confidence };
     }
 };
