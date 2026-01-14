@@ -17,13 +17,17 @@ export default function Chart({ data, color = "var(--primary)", range = "1D" }: 
             let label = "";
             const totalPoints = data.length;
 
+            // Normalize range to ensure matching works
+            const r = range.toUpperCase().trim();
+            console.log(`Chart Range: ${r}`);
+
             // Generate mock labels based on range
-            if (range === '1D' || range === '1H' || range === '5M' || range === '4H' || range === '15M') {
+            if (['1D', '1H', '5M', '4H', '15M'].includes(r)) {
                 // Time based
                 const hour = Math.floor(9 + (i / totalPoints) * 8); // Market hours 9-17
                 const minute = Math.floor((i % 4) * 15).toString().padStart(2, '0');
                 label = `${hour}:${minute}`;
-            } else if (range === '1W' || range === '1M') {
+            } else if (['1W', '1M'].includes(r)) {
                 // Date based (Days)
                 const date = new Date();
                 date.setDate(date.getDate() - (totalPoints - i));
