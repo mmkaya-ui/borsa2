@@ -39,7 +39,13 @@ export const useMarketStore = create<MarketState>()(
             },
 
             startLiveUpdates: () => {
+                // Ensure we don't have multiple subscriptions running if logic were different,
+                // but here we rely on the caller to handle the unsubscribe.
+                // Optimization: We could check if we already have data to avoid initial flash.
                 return MarketAPI.subscribeToTicker((updatedStocks) => {
+                    // Optimization: Check for equality before setting to avoid store notification?
+                    // But deep equality on 300 items is heavy.
+                    // We rely on StockCard memoization for the UI layer.
                     set({ stocks: updatedStocks });
                 });
             },
