@@ -5,8 +5,8 @@ export interface Stock {
     change: number;
     changePercent: number;
     volume: number;
-    exchange: 'BIST' | 'NASDAQ' | 'CRYPTO'; // Added exchange
-    currency: 'TRY' | 'USD'; // Added currency
+    exchange: 'BIST' | 'NASDAQ' | 'CRYPTO';
+    currency: 'TRY' | 'USD';
     history: number[]; // Simple sparkline data
     open: number;
     prevClose: number;
@@ -14,7 +14,7 @@ export interface Stock {
     dayLow: number;
 }
 
-const MOCK_STOCKS: Stock[] = [
+const REAL_STOCKS: Stock[] = [
     // BIST (Istanbul Stock Exchange)
     { symbol: "THYAO", name: "Türk Hava Yolları", basePrice: 280, exchange: 'BIST' } as any,
     { symbol: "GARAN", name: "Garanti BBVA", basePrice: 65, exchange: 'BIST' } as any,
@@ -31,33 +31,6 @@ const MOCK_STOCKS: Stock[] = [
     { symbol: "TOASO", name: "Tofaş Oto", basePrice: 240, exchange: 'BIST' } as any,
     { symbol: "FROTO", name: "Ford Otosan", basePrice: 890, exchange: 'BIST' } as any,
     { symbol: "KONTR", name: "Kontrolmatik", basePrice: 210, exchange: 'BIST' } as any,
-
-    // NASDAQ / NYSE (US Tech & Blue Chips)
-    { symbol: "AAPL", name: "Apple Inc.", basePrice: 175, exchange: 'NASDAQ' } as any,
-    { symbol: "GOOGL", name: "Alphabet Inc.", basePrice: 140, exchange: 'NASDAQ' } as any,
-    { symbol: "MSFT", name: "Microsoft Corp.", basePrice: 380, exchange: 'NASDAQ' } as any,
-    { symbol: "AMZN", name: "Amazon.com", basePrice: 155, exchange: 'NASDAQ' } as any,
-    { symbol: "TSLA", name: "Tesla, Inc.", basePrice: 220, exchange: 'NASDAQ' } as any,
-    { symbol: "NVDA", name: "NVIDIA Corp.", basePrice: 600, exchange: 'NASDAQ' } as any,
-    { symbol: "META", name: "Meta Platforms", basePrice: 390, exchange: 'NASDAQ' } as any,
-    { symbol: "NFLX", name: "Netflix", basePrice: 480, exchange: 'NASDAQ' } as any,
-    { symbol: "AMD", name: "AMD", basePrice: 160, exchange: 'NASDAQ' } as any,
-    { symbol: "INTC", name: "Intel Corp.", basePrice: 45, exchange: 'NASDAQ' } as any,
-
-    // CRYPTO
-    { symbol: "BTC-USD", name: "Bitcoin", basePrice: 52000, exchange: 'CRYPTO' } as any,
-    { symbol: "ETH-USD", name: "Ethereum", basePrice: 2800, exchange: 'CRYPTO' } as any,
-    { symbol: "SOL-USD", name: "Solana", basePrice: 110, exchange: 'CRYPTO' } as any,
-    { symbol: "XRP-USD", name: "Ripple", basePrice: 0.55, exchange: 'CRYPTO' } as any,
-    { symbol: "AVAX-USD", name: "Avalanche", basePrice: 36, exchange: 'CRYPTO' } as any,
-    { symbol: "DOGE-USD", name: "Dogecoin", basePrice: 0.08, exchange: 'CRYPTO' } as any,
-    { symbol: "BNB-USD", name: "Binance Coin", basePrice: 350, exchange: 'CRYPTO' } as any,
-    { symbol: "ADA-USD", name: "Cardano", basePrice: 0.50, exchange: 'CRYPTO' } as any,
-    { symbol: "DOT-USD", name: "Polkadot", basePrice: 7.20, exchange: 'CRYPTO' } as any,
-    { symbol: "MATIC-USD", name: "Polygon", basePrice: 0.85, exchange: 'CRYPTO' } as any,
-    { symbol: "LINK-USD", name: "Chainlink", basePrice: 18, exchange: 'CRYPTO' } as any,
-
-    // BIST Extension
     { symbol: "EKGYO", name: "Emlak Konut", basePrice: 10, exchange: 'BIST' } as any,
     { symbol: "VESTL", name: "Vestel", basePrice: 85, exchange: 'BIST' } as any,
     { symbol: "ARCLK", name: "Arçelik", basePrice: 160, exchange: 'BIST' } as any,
@@ -72,16 +45,6 @@ const MOCK_STOCKS: Stock[] = [
     { symbol: "MGROS", name: "Migros", basePrice: 480, exchange: 'BIST' } as any,
     { symbol: "ODAS", name: "Odaş Elektrik", basePrice: 11, exchange: 'BIST' } as any,
     { symbol: "KOZAL", name: "Koza Altın", basePrice: 24, exchange: 'BIST' } as any,
-
-    // NASDAQ Extension
-    { symbol: "CRM", name: "Salesforce", basePrice: 280, exchange: 'NASDAQ' } as any,
-    { symbol: "ADBE", name: "Adobe", basePrice: 550, exchange: 'NASDAQ' } as any,
-    { symbol: "ORCL", name: "Oracle", basePrice: 115, exchange: 'NASDAQ' } as any,
-    { symbol: "CSCO", name: "Cisco", basePrice: 48, exchange: 'NASDAQ' } as any,
-    { symbol: "QCOM", name: "Qualcomm", basePrice: 155, exchange: 'NASDAQ' } as any,
-
-    // NEW ADDITIONS (Populating List)
-    // BIST
     { symbol: "TAVHL", name: "TAV Havalimanları", basePrice: 150, exchange: 'BIST' } as any,
     { symbol: "GUBRF", name: "Gübre Fabrikaları", basePrice: 180, exchange: 'BIST' } as any,
     { symbol: "OTKAR", name: "Otokar", basePrice: 450, exchange: 'BIST' } as any,
@@ -113,6 +76,21 @@ const MOCK_STOCKS: Stock[] = [
     { symbol: "GLYHO", name: "Global Yatırım", basePrice: 11, exchange: 'BIST' } as any,
 
     // NASDAQ
+    { symbol: "AAPL", name: "Apple Inc.", basePrice: 175, exchange: 'NASDAQ' } as any,
+    { symbol: "GOOGL", name: "Alphabet Inc.", basePrice: 140, exchange: 'NASDAQ' } as any,
+    { symbol: "MSFT", name: "Microsoft Corp.", basePrice: 380, exchange: 'NASDAQ' } as any,
+    { symbol: "AMZN", name: "Amazon.com", basePrice: 155, exchange: 'NASDAQ' } as any,
+    { symbol: "TSLA", name: "Tesla, Inc.", basePrice: 220, exchange: 'NASDAQ' } as any,
+    { symbol: "NVDA", name: "NVIDIA Corp.", basePrice: 600, exchange: 'NASDAQ' } as any,
+    { symbol: "META", name: "Meta Platforms", basePrice: 390, exchange: 'NASDAQ' } as any,
+    { symbol: "NFLX", name: "Netflix", basePrice: 480, exchange: 'NASDAQ' } as any,
+    { symbol: "AMD", name: "AMD", basePrice: 160, exchange: 'NASDAQ' } as any,
+    { symbol: "INTC", name: "Intel Corp.", basePrice: 45, exchange: 'NASDAQ' } as any,
+    { symbol: "CRM", name: "Salesforce", basePrice: 280, exchange: 'NASDAQ' } as any,
+    { symbol: "ADBE", name: "Adobe", basePrice: 550, exchange: 'NASDAQ' } as any,
+    { symbol: "ORCL", name: "Oracle", basePrice: 115, exchange: 'NASDAQ' } as any,
+    { symbol: "CSCO", name: "Cisco", basePrice: 48, exchange: 'NASDAQ' } as any,
+    { symbol: "QCOM", name: "Qualcomm", basePrice: 155, exchange: 'NASDAQ' } as any,
     { symbol: "JPM", name: "JPMorgan Chase", basePrice: 170, exchange: 'NASDAQ' } as any,
     { symbol: "V", name: "Visa Inc.", basePrice: 260, exchange: 'NASDAQ' } as any,
     { symbol: "JNJ", name: "Johnson & Johnson", basePrice: 160, exchange: 'NASDAQ' } as any,
@@ -134,6 +112,17 @@ const MOCK_STOCKS: Stock[] = [
     { symbol: "LIN", name: "Linde", basePrice: 410, exchange: 'NASDAQ' } as any,
 
     // CRYPTO
+    { symbol: "BTC-USD", name: "Bitcoin", basePrice: 52000, exchange: 'CRYPTO' } as any,
+    { symbol: "ETH-USD", name: "Ethereum", basePrice: 2800, exchange: 'CRYPTO' } as any,
+    { symbol: "SOL-USD", name: "Solana", basePrice: 110, exchange: 'CRYPTO' } as any,
+    { symbol: "XRP-USD", name: "Ripple", basePrice: 0.55, exchange: 'CRYPTO' } as any,
+    { symbol: "AVAX-USD", name: "Avalanche", basePrice: 36, exchange: 'CRYPTO' } as any,
+    { symbol: "DOGE-USD", name: "Dogecoin", basePrice: 0.08, exchange: 'CRYPTO' } as any,
+    { symbol: "BNB-USD", name: "Binance Coin", basePrice: 350, exchange: 'CRYPTO' } as any,
+    { symbol: "ADA-USD", name: "Cardano", basePrice: 0.50, exchange: 'CRYPTO' } as any,
+    { symbol: "DOT-USD", name: "Polkadot", basePrice: 7.20, exchange: 'CRYPTO' } as any,
+    { symbol: "MATIC-USD", name: "Polygon", basePrice: 0.85, exchange: 'CRYPTO' } as any,
+    { symbol: "LINK-USD", name: "Chainlink", basePrice: 18, exchange: 'CRYPTO' } as any,
     { symbol: "SHIB-USD", name: "Shiba Inu", basePrice: 0.000009, exchange: 'CRYPTO' } as any,
     { symbol: "TRX-USD", name: "TRON", basePrice: 0.11, exchange: 'CRYPTO' } as any,
     { symbol: "LTC-USD", name: "Litecoin", basePrice: 70, exchange: 'CRYPTO' } as any,
@@ -151,11 +140,33 @@ const MOCK_STOCKS: Stock[] = [
     { symbol: "ALGO-USD", name: "Algorand", basePrice: 0.18, exchange: 'CRYPTO' } as any,
 ];
 
+// Helper to fill the list to 100 items per exchange
+const fillExchange = (exchange: 'BIST' | 'NASDAQ' | 'CRYPTO', count: number) => {
+    const existing = REAL_STOCKS.filter(s => s.exchange === exchange);
+    const needed = Math.max(0, count - existing.length);
+
+    const generated: Stock[] = [];
+    for (let i = 1; i <= needed; i++) {
+        generated.push({
+            symbol: `${exchange === 'CRYPTO' ? 'ALT' : exchange}-${(existing.length + i).toString().padStart(3, '0')}${exchange === 'CRYPTO' ? '-USD' : ''}`,
+            name: `${exchange} High Volatility Asset ${i}`,
+            basePrice: 10 + Math.random() * 500,
+            exchange: exchange
+        } as any);
+    }
+    return [...existing, ...generated];
+};
+
+const MOCK_STOCKS: Stock[] = [
+    ...fillExchange('BIST', 100),
+    ...fillExchange('NASDAQ', 100),
+    ...fillExchange('CRYPTO', 100),
+];
+
 function generateRandomStockData(base: Stock | any): Stock {
     const basePrice = base.basePrice || 100;
-    // Fix: Variation should be proportional to price
     // Inject artificial volatility for specific "Risky" demo stocks
-    const isVolatile = ['DOGE-USD', 'SASA', 'XRP-USD'].includes(base.symbol);
+    const isVolatile = ['DOGE-USD', 'SASA', 'XRP-USD'].includes(base.symbol) || base.name.includes("High Volatility");
     const volatilityFactor = isVolatile ? 0.15 : 0.05; // 15% for risky, 5% for normal
 
     const percentVariation = (Math.random() - 0.5) * volatilityFactor;
@@ -191,7 +202,8 @@ function generateRandomStockData(base: Stock | any): Stock {
         price: parseFloat(price.toFixed(2)),
         change: parseFloat(change.toFixed(2)),
         changePercent: parseFloat(changePercent.toFixed(2)),
-        volume: Math.floor(Math.random() * 1000000),
+        // Generate high volume for "Most Traded" simulation
+        volume: Math.floor(Math.random() * 9000000) + 1000000,
         exchange: base.exchange as 'BIST' | 'NASDAQ' | 'CRYPTO',
         currency: base.exchange === 'BIST' ? 'TRY' : 'USD', // Helper
         history,
@@ -228,7 +240,7 @@ export const MarketAPI = {
         const basePrice = stock ? (stock as any).basePrice : 100;
 
         // Ensure consistency with "Scanner" by applying same volatility rules
-        const isVolatile = ['DOGE-USD', 'SASA', 'XRP-USD'].includes(symbol);
+        const isVolatile = ['DOGE-USD', 'SASA', 'XRP-USD'].includes(symbol) || (stock?.name.includes("High Volatility"));
 
         let points = 20;
         let volatility = isVolatile ? 0.15 : 0.02; // Default 2%, but 15% for risky assets matching scanner
@@ -266,8 +278,13 @@ export const MarketAPI = {
 
         if (!query) {
             // Return a mix of stocks (e.g., BIST, NASDAQ, CRYPTO) as default
-            const indices = [0, 1, 2, 15, 16, 17, 25, 26, 27]; // Balanced selection
-            return indices.map(i => MOCK_STOCKS[i]).filter(Boolean).map(generateRandomStockData);
+            // Just take first 10 from each exchange for default view
+            const sample = [
+                ...MOCK_STOCKS.filter(s => s.exchange === 'BIST').slice(0, 5),
+                ...MOCK_STOCKS.filter(s => s.exchange === 'NASDAQ').slice(0, 5),
+                ...MOCK_STOCKS.filter(s => s.exchange === 'CRYPTO').slice(0, 5)
+            ];
+            return sample.map(generateRandomStockData);
         }
 
         return MOCK_STOCKS.filter(s =>
