@@ -85,6 +85,18 @@ body {
   background: var(--muted-foreground);
 }
 
+/* Custom Scrollbar Utility */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--secondary) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 4px;
+  /* Thinner for horizontal */
+  width: 4px;
+}
+
 /* Utilities */
 .glass {
   background: rgba(23, 23, 23, 0.7);

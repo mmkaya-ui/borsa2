@@ -116,7 +116,7 @@ export default function StockDetail() {
                                 <span className="font-semibold">{stock.change > 0 ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent.toFixed(2)}%)</span>
                             </div>
                         </div>
-                        <div className="flex gap-2 overflow-x-auto pb-4 sm:pb-0 w-full sm:w-auto px-1 touch-pan-x">
+                        <div className="flex gap-2 overflow-x-auto pb-2 w-full sm:w-auto px-1 touch-pan-x custom-scrollbar">
                             {['5m', '15m', '1h', '4h', '1d', '1w', '1m', '1y', '5y', '20y'].map(range => (
                                 <button
                                     key={range}
