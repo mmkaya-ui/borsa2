@@ -16,6 +16,12 @@ export default function StockDetail() {
     const [stock, setStock] = useState<Stock | null>(null);
     const t = useTranslations('StockDetail');
 
+    // Hydration check
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     useEffect(() => {
         if (stocks.length === 0) {
             fetchStocks();
@@ -29,6 +35,18 @@ export default function StockDetail() {
         }
     }, [stocks, symbol]);
 
+    // Range Selection State
+    const [selectedRange, setSelectedRange] = useState('1D');
+
+    const chartData = useMemo(() => {
+        if (!stock || !stock.history) return [];
+        // Just shifting data slightly to simulate "different" views for this demo
+        const multiplier = selectedRange === '1D' ? 1 : selectedRange === '1W' ? 5 : 20;
+        return stock.history.map((val, i) => val + (Math.sin(i) * multiplier));
+    }, [stock, selectedRange]);
+
+    if (!isMounted) return <div className="flex h-screen items-center justify-center animate-pulse text-[var(--muted-foreground)]">{t('loading')}</div>;
+
     if (isLoading && !stock) {
         return <div className="flex h-screen items-center justify-center animate-pulse text-[var(--muted-foreground)]">{t('loading')}</div>;
     }
@@ -38,16 +56,6 @@ export default function StockDetail() {
     }
 
     const isPositive = stock.change >= 0;
-
-    const [selectedRange, setSelectedRange] = useState('1D');
-
-    // Mock logic to simulate different time ranges
-    const chartData = useMemo(() => {
-        if (!stock) return [];
-        // Just shifting data slightly to simulate "different" views for this demo
-        const multiplier = selectedRange === '1D' ? 1 : selectedRange === '1W' ? 5 : 20;
-        return stock.history.map((val, i) => val + (Math.sin(i) * multiplier));
-    }, [stock, selectedRange]);
 
     return (
         <div className="max-w-5xl mx-auto flex flex-col gap-6 animate-in fade-in duration-500">
@@ -90,7 +98,13 @@ export default function StockDetail() {
                             ))}
                         </div>
                     </div>
-                    <Chart data={chartData} color={isPositive ? "var(--primary)" : "var(--destructive)"} />
+                    {stock.history && stock.history.length > 0 ? (
+                        <Chart data={chartData} color={isPositive ? "var(--primary)" : "var(--destructive)"} />
+                    ) : (
+                        <div className="h-[400px] flex items-center justify-center text-[var(--muted-foreground)]">
+                            No chart data available
+                        </div>
+                    )}
                 </div>
 
                 {/* Stats Card */}
