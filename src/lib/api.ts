@@ -48,6 +48,33 @@ const MOCK_STOCKS: Stock[] = [
     { symbol: "AVAX-USD", name: "Avalanche", basePrice: 36, exchange: 'CRYPTO' } as any,
     { symbol: "DOGE-USD", name: "Dogecoin", basePrice: 0.08, exchange: 'CRYPTO' } as any,
     { symbol: "BNB-USD", name: "Binance Coin", basePrice: 350, exchange: 'CRYPTO' } as any,
+    { symbol: "ADA-USD", name: "Cardano", basePrice: 0.50, exchange: 'CRYPTO' } as any,
+    { symbol: "DOT-USD", name: "Polkadot", basePrice: 7.20, exchange: 'CRYPTO' } as any,
+    { symbol: "MATIC-USD", name: "Polygon", basePrice: 0.85, exchange: 'CRYPTO' } as any,
+    { symbol: "LINK-USD", name: "Chainlink", basePrice: 18, exchange: 'CRYPTO' } as any,
+
+    // BIST Extension
+    { symbol: "EKGYO", name: "Emlak Konut", basePrice: 10, exchange: 'BIST' } as any,
+    { symbol: "VESTL", name: "Vestel", basePrice: 85, exchange: 'BIST' } as any,
+    { symbol: "ARCLK", name: "Arçelik", basePrice: 160, exchange: 'BIST' } as any,
+    { symbol: "TCELL", name: "Turkcell", basePrice: 70, exchange: 'BIST' } as any,
+    { symbol: "TTKOM", name: "Türk Telekom", basePrice: 40, exchange: 'BIST' } as any,
+    { symbol: "YKBNK", name: "Yapı Kredi", basePrice: 28, exchange: 'BIST' } as any,
+    { symbol: "ISCTR", name: "İş Bankası (C)", basePrice: 32, exchange: 'BIST' } as any,
+    { symbol: "SAHOL", name: "Sabancı Holding", basePrice: 90, exchange: 'BIST' } as any,
+    { symbol: "ENKAI", name: "Enka İnşaat", basePrice: 45, exchange: 'BIST' } as any,
+    { symbol: "ALARK", name: "Alarko Holding", basePrice: 120, exchange: 'BIST' } as any,
+    { symbol: "PGSUS", name: "Pegasus", basePrice: 850, exchange: 'BIST' } as any,
+    { symbol: "MGROS", name: "Migros", basePrice: 480, exchange: 'BIST' } as any,
+    { symbol: "ODAS", name: "Odaş Elektrik", basePrice: 11, exchange: 'BIST' } as any,
+    { symbol: "KOZAL", name: "Koza Altın", basePrice: 24, exchange: 'BIST' } as any,
+
+    // NASDAQ Extension
+    { symbol: "CRM", name: "Salesforce", basePrice: 280, exchange: 'NASDAQ' } as any,
+    { symbol: "ADBE", name: "Adobe", basePrice: 550, exchange: 'NASDAQ' } as any,
+    { symbol: "ORCL", name: "Oracle", basePrice: 115, exchange: 'NASDAQ' } as any,
+    { symbol: "CSCO", name: "Cisco", basePrice: 48, exchange: 'NASDAQ' } as any,
+    { symbol: "QCOM", name: "Qualcomm", basePrice: 155, exchange: 'NASDAQ' } as any,
 ];
 
 function generateRandomStockData(base: Stock | any): Stock {
