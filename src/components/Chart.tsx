@@ -10,6 +10,7 @@ interface ChartProps {
 
 export default function Chart({ data, color = "var(--primary)" }: ChartProps) {
     const chartData = useMemo(() => {
+        if (!data || data.length === 0) return [];
         return data.map((val, i) => ({
             time: i,
             value: val,
@@ -17,9 +18,17 @@ export default function Chart({ data, color = "var(--primary)" }: ChartProps) {
         }));
     }, [data]);
 
+    if (!data || data.length === 0) {
+        return (
+            <div className="h-[400px] w-full mt-4 flex items-center justify-center text-[var(--muted-foreground)] border border-dashed border-[var(--border)] rounded-xl">
+                No data available
+            </div>
+        );
+    }
+
     const minValue = Math.min(...data);
     const maxValue = Math.max(...data);
-    const padding = (maxValue - minValue) * 0.1;
+    const padding = (maxValue - minValue) * 0.1 || 1; // Default padding if flat line
 
     return (
         <div className="h-[400px] w-full mt-4">
