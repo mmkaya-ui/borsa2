@@ -32,6 +32,8 @@
         "volatilityTooltip": "VIX (Volatilite Endeksi), piyasadaki korku ve belirsizlik seviyesini ölçer. Yüksek değerler riskin arttığını, düşük değerler stabiliteyi gösterir.",
         "noAnomalies": "Piyasa Stabil",
         "noAnomaliesDesc": "Şu anda herhangi bir manipülasyon veya anomali sinyali tespit edilmedi.",
+        "bullish": "Yükseliş Beklentisi",
+        "bearish": "Düşüş Beklentisi",
         "ranges": {
             "5m": "5dk",
             "15m": "15dk",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMarketStore } from "@/store/marketStore";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, TrendingUp, Activity, Info, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
@@ -21,24 +21,37 @@ export default function Analysis() {
 
     // ... inside component
 
+    const [selectedExchange, setSelectedExchange] = useState<string>('ALL');
+
     // Artificial Intelligence Scanner (Real Logic)
     const scannedMarket = useMemo(() => {
         if (stocks.length === 0) return [];
-        return stocks.map(stock => {
+
+        let filtered = stocks;
+        if (selectedExchange !== 'ALL') {
+            filtered = stocks.filter(s => s.exchange === selectedExchange);
+        }
+
+        return filtered.map(stock => {
             const analysis = AnalysisUtils.analyzeStock(stock.history, stock.volume);
             return { ...stock, analysis };
         }).sort((a, b) => b.analysis.riskScore - a.analysis.riskScore);
-    }, [stocks]);
+    }, [stocks, selectedExchange]);
 
     const riskyAssets = scannedMarket.filter(item => item.analysis.riskLevel === 'HIGH' || item.analysis.riskLevel === 'MEDIUM');
 
     const predictions = useMemo(() => {
-        return stocks.map(stock => {
+        let filtered = stocks;
+        if (selectedExchange !== 'ALL') {
+            filtered = stocks.filter(s => s.exchange === selectedExchange);
+        }
+
+        return filtered.map(stock => {
             const trend = stock.history[stock.history.length - 1] > stock.history[0] ? 'Bullish' : 'Bearish';
             const confidence = Math.floor(Math.random() * 30) + 70; // 70-100%
             return { ...stock, trend, confidence };
         });
-    }, [stocks]);
+    }, [stocks, selectedExchange]);
 
     // Advanced Volatility Calculation (Standard Deviation of Log Returns)
     const volatilityIndex = useMemo(() => {
@@ -89,6 +102,22 @@ export default function Analysis() {
                 <p className="text-[var(--muted-foreground)]">
                     {t('subtitle')}
                 </p>
+
+                {/* Exchange Filter */}
+                <div className="flex gap-2 mt-6 overflow-x-auto pb-2 scrollbar-hide">
+                    {['ALL', 'BIST', 'NASDAQ', 'CRYPTO'].map(ex => (
+                        <button
+                            key={ex}
+                            onClick={() => setSelectedExchange(ex)}
+                            className={`px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${selectedExchange === ex
+                                ? 'bg-[var(--primary)] text-[var(--primary-foreground)] shadow-lg shadow-[var(--primary)]/20'
+                                : 'bg-[var(--card)] border border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--foreground)]'
+                                }`}
+                        >
+                            {ex === 'ALL' ? 'Tüm Piyasalar' : ex}
+                        </button>
+                    ))}
+                </div>
             </header>
 
             {/* Alerts Section - Always visible to show manipulation indicators location */}
