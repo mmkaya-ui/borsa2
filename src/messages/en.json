@@ -42,5 +42,15 @@
         "clear": "Clear Data",
         "confirmReset": "Are you sure you want to delete all holdings?",
         "info": "App Info"
+    },
+    "StockDetail": {
+        "loading": "Loading Market Data...",
+        "notFound": "Stock not found",
+        "stats": "Market Stats",
+        "volume": "Volume",
+        "marketCap": "Market Cap",
+        "open": "Open",
+        "realtimeTitle": "Real-time Updates",
+        "realtimeDesc": "This data is being updated in real-time via WebSocket connection (simulated)."
     }
 }

@@ -42,5 +42,15 @@
         "clear": "Verileri Temizle",
         "confirmReset": "Tüm kayıtlı verilerinizi silmek istediğinize emin misiniz?",
         "info": "Uygulama Bilgisi"
+    },
+    "StockDetail": {
+        "loading": "Piyasa Verileri Yükleniyor...",
+        "notFound": "Hisse bulunamadı",
+        "stats": "Piyasa İstatistikleri",
+        "volume": "Hacim",
+        "marketCap": "Piyasa Değeri",
+        "open": "Açılış",
+        "realtimeTitle": "Gerçek Zamanlı Güncellemeler",
+        "realtimeDesc": "Bu veriler WebSocket bağlantısı (simüle edilmiş) ile gerçek zamanlı olarak güncellenmektedir."
     }
 }

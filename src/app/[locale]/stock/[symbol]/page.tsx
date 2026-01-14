@@ -7,12 +7,14 @@ import Chart from "@/components/Chart";
 import { ArrowLeft, RefreshCw, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Stock } from "@/lib/api";
+import { useTranslations } from "next-intl";
 
 export default function StockDetail() {
     const params = useParams();
     const symbol = params.symbol as string;
     const { stocks, fetchStocks, isLoading } = useMarketStore();
     const [stock, setStock] = useState<Stock | null>(null);
+    const t = useTranslations('StockDetail');
 
     useEffect(() => {
         if (stocks.length === 0) {
@@ -28,11 +30,11 @@ export default function StockDetail() {
     }, [stocks, symbol]);
 
     if (isLoading && !stock) {
-        return <div className="flex h-screen items-center justify-center animate-pulse text-[var(--muted-foreground)]">Loading Market Data...</div>;
+        return <div className="flex h-screen items-center justify-center animate-pulse text-[var(--muted-foreground)]">{t('loading')}</div>;
     }
 
     if (!stock) {
-        return <div className="text-[var(--destructive)]">Stock not found</div>;
+        return <div className="text-[var(--destructive)]">{t('notFound')}</div>;
     }
 
     const isPositive = stock.change >= 0;
@@ -77,18 +79,18 @@ export default function StockDetail() {
                 {/* Stats Card */}
                 <div className="flex flex-col gap-4">
                     <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-                        <h3 className="font-semibold mb-4 text-[var(--foreground)]">Market Stats</h3>
+                        <h3 className="font-semibold mb-4 text-[var(--foreground)]">{t('stats')}</h3>
                         <div className="space-y-4">
                             <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
-                                <span className="text-[var(--muted-foreground)]">Volume</span>
+                                <span className="text-[var(--muted-foreground)]">{t('volume')}</span>
                                 <span className="font-mono">{stock.volume.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
-                                <span className="text-[var(--muted-foreground)]">Market Cap</span>
+                                <span className="text-[var(--muted-foreground)]">{t('marketCap')}</span>
                                 <span className="font-mono">{(stock.price * 15000000).toLocaleString('en-US', { style: 'currency', currency: 'USD', notation: 'compact' })}</span>
                             </div>
                             <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
-                                <span className="text-[var(--muted-foreground)]">Open</span>
+                                <span className="text-[var(--muted-foreground)]">{t('open')}</span>
                                 <span className="font-mono">${(stock.price - stock.change).toFixed(2)}</span>
                             </div>
                         </div>
@@ -97,9 +99,9 @@ export default function StockDetail() {
                     <div className="rounded-xl border border-[var(--border)] bg-[var(--primary)]/10 p-6 flex items-start gap-4">
                         <RefreshCw className="text-[var(--primary)] shrink-0 mt-1" />
                         <div>
-                            <h4 className="font-semibold text-[var(--primary)]">Real-time Updates</h4>
+                            <h4 className="font-semibold text-[var(--primary)]">{t('realtimeTitle')}</h4>
                             <p className="text-sm text-[var(--muted-foreground)] mt-1">
-                                This data is being updated in real-time via WebSocket connection (simulated).
+                                {t('realtimeDesc')}
                             </p>
                         </div>
                     </div>

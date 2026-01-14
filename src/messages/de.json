@@ -42,5 +42,15 @@
         "clear": "Daten löschen",
         "confirmReset": "Sind Sie sicher, dass Sie alle Daten löschen möchten?",
         "info": "App Info"
+    },
+    "StockDetail": {
+        "loading": "Markt wird geladen...",
+        "notFound": "Aktie nicht gefunden",
+        "stats": "Marktstatistiken",
+        "volume": "Volumen",
+        "marketCap": "Marktkapitalisierung",
+        "open": "Eröffnung",
+        "realtimeTitle": "Echtzeit-Updates",
+        "realtimeDesc": "Diese Daten werden über eine WebSocket-Verbindung (simuliert) in Echtzeit aktualisiert."
     }
 }
