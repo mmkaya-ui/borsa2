@@ -28,7 +28,22 @@
         "predictions": "Trendvorhersagen",
         "confidence": "Vertrauen",
         "volatility": "Volatilitätsindex",
-        "volatilityDesc": "Die Marktvolatilität ist derzeit MODERAT."
+        "volatilityDesc": "Die Marktvolatilität ist derzeit MODERAT.",
+        "volatilityTooltip": "Der VIX (Volatilitätsindex) misst Marktangst und Unsicherheit. Hohe Werte deuten auf erhöhtes Risiko hin.",
+        "noAnomalies": "Markt Stabil",
+        "noAnomaliesDesc": "Derzeit keine Manipulations- oder Anomaliesignale erkannt.",
+        "ranges": {
+            "5m": "5m",
+            "15m": "15m",
+            "1h": "1h",
+            "4h": "4h",
+            "1d": "1t",
+            "1w": "1w",
+            "1m": "1m",
+            "1y": "1j",
+            "5y": "5j",
+            "20y": "20j"
+        }
     },
     "Settings": {
         "title": "Einstellungen",

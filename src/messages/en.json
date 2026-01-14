@@ -28,7 +28,22 @@
         "predictions": "Trend Predictions",
         "confidence": "Confidence",
         "volatility": "Volatility Index",
-        "volatilityDesc": "Market volatility is currently MODERATE. Risk appetite should be balanced."
+        "volatilityDesc": "Market volatility is currently MODERATE. Risk appetite should be balanced.",
+        "volatilityTooltip": "VIX (Volatility Index) measures market fear and uncertainty. High values indicate increased risk, low values indicate stability.",
+        "noAnomalies": "Market Stable",
+        "noAnomaliesDesc": "No manipulation or anomaly signals detected at this time.",
+        "ranges": {
+            "5m": "5m",
+            "15m": "15m",
+            "1h": "1h",
+            "4h": "4h",
+            "1d": "1d",
+            "1w": "1w",
+            "1m": "1m",
+            "1y": "1y",
+            "5y": "5y",
+            "20y": "20y"
+        }
     },
     "Settings": {
         "title": "Settings",

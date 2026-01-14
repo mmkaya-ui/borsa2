@@ -2,8 +2,9 @@
 
 import { useMarketStore } from "@/store/marketStore";
 import { useEffect, useMemo } from "react";
-import { AlertTriangle, TrendingUp, Activity } from "lucide-react";
+import { AlertTriangle, TrendingUp, Activity, Info, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 
 export default function Analysis() {
     const { stocks, fetchStocks, isLoading } = useMarketStore();
@@ -85,28 +86,40 @@ export default function Analysis() {
                 </p>
             </header>
 
-            {/* Alerts Section */}
-            {anomalies.length > 0 && (
-                <div className="rounded-xl border border-[var(--destructive)] bg-[var(--destructive)]/10 p-6">
-                    <div className="flex items-center gap-2 mb-4 text-[var(--destructive)]">
-                        <AlertTriangle size={24} />
-                        <h2 className="text-xl font-bold">{t('anomalies')}</h2>
-                    </div>
+            {/* Alerts Section - Always visible to show manipulation indicators location */}
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-4">
+                    <AlertTriangle size={24} className={anomalies.length > 0 ? "text-[var(--destructive)]" : "text-emerald-500"} />
+                    <h2 className="text-xl font-bold text-[var(--foreground)]">{t('anomalies')}</h2>
+                </div>
+
+                {anomalies.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {anomalies.map(stock => (
-                            <div key={stock.symbol} className="bg-[var(--card)] p-4 rounded-lg border border-[var(--border)] flex justify-between items-center">
-                                <div>
-                                    <span className="font-bold">{stock.symbol}</span>
-                                    <p className="text-sm text-[var(--muted-foreground)]">{t('unusual')}</p>
+                            <Link key={stock.symbol} href={`/stock/${stock.symbol}`} className="block group">
+                                <div className="bg-[var(--card)] p-4 rounded-lg border border-[var(--destructive)] flex justify-between items-center hover:bg-[var(--destructive)]/5 transition-colors cursor-pointer group-hover:shadow-md">
+                                    <div>
+                                        <span className="font-bold flex items-center gap-2">
+                                            {stock.symbol}
+                                            <AlertTriangle size={14} className="text-[var(--destructive)]" />
+                                        </span>
+                                        <p className="text-sm text-[var(--muted-foreground)]">{t('unusual')}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-[var(--destructive)] font-bold">{stock.changePercent.toFixed(2)}%</div>
+                                    </div>
                                 </div>
-                                <div className="text-right">
-                                    <div className="text-[var(--destructive)] font-bold">{stock.changePercent.toFixed(2)}%</div>
-                                </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
-                </div>
-            )}
+                ) : (
+                    <div className="flex flex-col items-center justify-center py-8 text-[var(--muted-foreground)] opacity-70 bg-[var(--secondary)]/30 rounded-lg border border-dashed border-[var(--border)]">
+                        <CheckCircle2 size={40} className="text-emerald-500 mb-2 opacity-80" />
+                        <p className="font-medium text-emerald-500">{t('noAnomalies')}</p>
+                        <p className="text-sm mt-1">{t('noAnomaliesDesc')}</p>
+                    </div>
+                )}
+            </div>
 
             {/* Predictions */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -117,29 +130,41 @@ export default function Analysis() {
                     </div>
                     <div className="space-y-4">
                         {predictions.slice(0, 5).map(p => (
-                            <div key={p.symbol} className="flex items-center justify-between p-3 rounded-lg hover:bg-[var(--secondary)] transition-colors">
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-2 h-10 rounded-full ${p.trend === 'Bullish' ? 'bg-[var(--primary)]' : 'bg-[var(--destructive)]'}`}></div>
-                                    <div>
-                                        <div className="font-bold">{p.symbol}</div>
-                                        <div className="text-xs text-[var(--muted-foreground)]">{p.name}</div>
+                            <Link key={p.symbol} href={`/stock/${p.symbol}`} className="block">
+                                <div className="flex items-center justify-between p-3 rounded-lg hover:bg-[var(--secondary)] transition-colors cursor-pointer">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-2 h-10 rounded-full ${p.trend === 'Bullish' ? 'bg-[var(--primary)]' : 'bg-[var(--destructive)]'}`}></div>
+                                        <div>
+                                            <div className="font-bold">{p.symbol}</div>
+                                            <div className="text-xs text-[var(--muted-foreground)]">{p.name}</div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className={`font-bold ${p.trend === 'Bullish' ? 'text-[var(--primary)]' : 'text-[var(--destructive)]'}`}>
+                                            {p.trend === 'Bullish' ? t('bullish') : t('bearish')}
+                                        </div>
+                                        <div className="text-xs text-[var(--muted-foreground)]">{p.confidence}% {t('confidence')}</div>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <div className={`font-bold ${p.trend === 'Bullish' ? 'text-[var(--primary)]' : 'text-[var(--destructive)]'}`}>
-                                        {p.trend === 'Bullish' ? t('bullish') : t('bearish')}
-                                    </div>
-                                    <div className="text-xs text-[var(--muted-foreground)]">{p.confidence}% {t('confidence')}</div>
-                                </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </div>
 
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 flex flex-col">
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 flex flex-col relative group">
                     <div className="flex items-center gap-2 mb-2 text-[var(--accent)]">
                         <Activity size={24} />
                         <h2 className="text-xl font-bold">{t('volatility')}</h2>
+                        {/* Tooltip Icon & Popover */}
+                        <div className="relative group/tooltip ml-auto">
+                            <Info size={18} className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-help transition-colors" />
+                            <div className="absolute right-0 top-6 w-72 p-4 rounded-xl bg-[var(--popover)] border border-[var(--border)] shadow-xl z-50 hidden group-hover/tooltip:block animate-in fade-in zoom-in-95 duration-200">
+                                <div className="text-xs font-semibold mb-1 text-[var(--foreground)]">VIX (Volatility Index)</div>
+                                <p className="text-xs leading-relaxed text-[var(--muted-foreground)]">
+                                    {t('volatilityTooltip')}
+                                </p>
+                            </div>
+                        </div>
                     </div>
                     <p className="text-[var(--muted-foreground)] mb-8 text-sm">
                         {volStatus.desc}

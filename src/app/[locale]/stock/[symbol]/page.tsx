@@ -65,10 +65,10 @@ export default function StockDetail() {
                                 <span className="font-semibold">{stock.change > 0 ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent.toFixed(2)}%)</span>
                             </div>
                         </div>
-                        <div className="flex gap-2">
-                            {['1D', '1W', '1M', '1Y'].map(range => (
-                                <button key={range} className="px-3 py-1 rounded-md text-sm font-medium hover:bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
-                                    {range}
+                        <div className="flex gap-1 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
+                            {['5m', '15m', '1h', '4h', '1D', '1W', '1M', '1Y', '5Y', '20Y'].map(range => (
+                                <button key={range} className="px-3 py-1 rounded-md text-xs font-medium hover:bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors whitespace-nowrap">
+                                    {t(`ranges.${range.toLowerCase()}`, { fallback: range })}
                                 </button>
                             ))}
                         </div>
