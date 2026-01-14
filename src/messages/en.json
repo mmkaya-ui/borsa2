@@ -1,0 +1,46 @@
+{
+    "Navigation": {
+        "markets": "Markets",
+        "portfolio": "Portfolio",
+        "analysis": "Analysis",
+        "settings": "Settings"
+    },
+    "Dashboard": {
+        "title": "Market Overview",
+        "subtitle": "Real-time insights and performance tracking",
+        "loading": "Loading Market Data..."
+    },
+    "Portfolio": {
+        "title": "My Portfolio",
+        "subtitle": "Track your investments and performance",
+        "balance": "Total Balance",
+        "invested": "Total Invested",
+        "profit": "Total Profit/Loss",
+        "add": "Add Holding",
+        "empty": "No holdings found. Start by adding a stock.",
+        "shares": "Shares"
+    },
+    "Analysis": {
+        "title": "Market Analysis",
+        "subtitle": "AI-powered manipulation detection and trend prediction",
+        "anomalies": "Anomalies Detected",
+        "unusual": "Unusual Volume Activity",
+        "predictions": "Trend Predictions",
+        "confidence": "Confidence",
+        "volatility": "Volatility Index",
+        "volatilityDesc": "Market volatility is currently MODERATE. Risk appetite should be balanced."
+    },
+    "Settings": {
+        "title": "Settings",
+        "subtitle": "Manage your preferences and data",
+        "appearance": "Appearance",
+        "darkMode": "Dark Mode",
+        "systemDefault": "System default is currently active.",
+        "data": "Data Management",
+        "reset": "Reset Portfolio",
+        "resetDesc": "Clear all your current holdings.",
+        "clear": "Clear Data",
+        "confirmReset": "Are you sure you want to delete all holdings?",
+        "info": "App Info"
+    }
+}

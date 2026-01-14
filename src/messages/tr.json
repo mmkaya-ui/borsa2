@@ -1,0 +1,46 @@
+{
+    "Navigation": {
+        "markets": "Piyasalar",
+        "portfolio": "Portföy",
+        "analysis": "Analiz",
+        "settings": "Ayarlar"
+    },
+    "Dashboard": {
+        "title": "Piyasa Genel Bakış",
+        "subtitle": "Canlı veriler ve performans takibi",
+        "loading": "Piyasa Verileri Yükleniyor..."
+    },
+    "Portfolio": {
+        "title": "Portföyüm",
+        "subtitle": "Yatırımlarınızı ve performansınızı takip edin",
+        "balance": "Toplam Bakiye",
+        "invested": "Yatırılan",
+        "profit": "Toplam Kâr/Zarar",
+        "add": "Hisse Ekle",
+        "empty": "Henüz yatırımınız yok. Bir hisse ekleyerek başlayın.",
+        "shares": "Lot"
+    },
+    "Analysis": {
+        "title": "Piyasa Analizi",
+        "subtitle": "Yapay zeka destekli manipülasyon tespiti ve trend tahmini",
+        "anomalies": "Tespit Edilen Anomaliler",
+        "unusual": "Olağandışı Hacim",
+        "predictions": "Trend Tahminleri",
+        "confidence": "Güven",
+        "volatility": "Volatilite Endeksi",
+        "volatilityDesc": "Piyasa volatilitesi şu anda ORTA seviyede. Risk iştahı dengeli olmalı."
+    },
+    "Settings": {
+        "title": "Ayarlar",
+        "subtitle": "Tercihlerinizi ve verilerinizi yönetin",
+        "appearance": "Görünüm",
+        "darkMode": "Karanlık Mod",
+        "systemDefault": "Sistem varsayılanı aktif.",
+        "data": "Veri Yönetimi",
+        "reset": "Portföyü Sıfırla",
+        "resetDesc": "Tüm yatırımlarınızı silin.",
+        "clear": "Verileri Temizle",
+        "confirmReset": "Tüm kayıtlı verilerinizi silmek istediğinize emin misiniz?",
+        "info": "Uygulama Bilgisi"
+    }
+}

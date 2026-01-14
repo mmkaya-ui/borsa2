@@ -3,10 +3,11 @@
 import { useMarketStore } from "@/store/marketStore";
 import { useEffect, useMemo } from "react";
 import { AlertTriangle, TrendingUp, Activity } from "lucide-react";
-import StockCard from "@/components/StockCard";
+import { useTranslations } from "next-intl";
 
 export default function Analysis() {
     const { stocks, fetchStocks, isLoading } = useMarketStore();
+    const t = useTranslations('Analysis');
 
     useEffect(() => {
         if (stocks.length === 0) {
@@ -37,10 +38,10 @@ export default function Analysis() {
         <div className="max-w-7xl mx-auto flex flex-col gap-8">
             <header>
                 <h1 className="text-4xl font-bold tracking-tight text-[var(--foreground)]">
-                    Market <span className="text-gradient">Analysis</span>
+                    {t('title')}
                 </h1>
                 <p className="text-[var(--muted-foreground)]">
-                    AI-powered manipulation detection and trend prediction.
+                    {t('subtitle')}
                 </p>
             </header>
 
@@ -49,14 +50,14 @@ export default function Analysis() {
                 <div className="rounded-xl border border-[var(--destructive)] bg-[var(--destructive)]/10 p-6">
                     <div className="flex items-center gap-2 mb-4 text-[var(--destructive)]">
                         <AlertTriangle size={24} />
-                        <h2 className="text-xl font-bold">Anomalies Detected</h2>
+                        <h2 className="text-xl font-bold">{t('anomalies')}</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {anomalies.map(stock => (
                             <div key={stock.symbol} className="bg-[var(--card)] p-4 rounded-lg border border-[var(--border)] flex justify-between items-center">
                                 <div>
                                     <span className="font-bold">{stock.symbol}</span>
-                                    <p className="text-sm text-[var(--muted-foreground)]">Unusual Volume Activity</p>
+                                    <p className="text-sm text-[var(--muted-foreground)]">{t('unusual')}</p>
                                 </div>
                                 <div className="text-right">
                                     <div className="text-[var(--destructive)] font-bold">{stock.changePercent.toFixed(2)}%</div>
@@ -72,7 +73,7 @@ export default function Analysis() {
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
                     <div className="flex items-center gap-2 mb-6 text-[var(--primary)]">
                         <TrendingUp size={24} />
-                        <h2 className="text-xl font-bold">Trend Predictions</h2>
+                        <h2 className="text-xl font-bold">{t('predictions')}</h2>
                     </div>
                     <div className="space-y-4">
                         {predictions.slice(0, 5).map(p => (
@@ -88,7 +89,7 @@ export default function Analysis() {
                                     <div className={`font-bold ${p.trend === 'Bullish' ? 'text-[var(--primary)]' : 'text-[var(--destructive)]'}`}>
                                         {p.trend}
                                     </div>
-                                    <div className="text-xs text-[var(--muted-foreground)]">{p.confidence}% Confidence</div>
+                                    <div className="text-xs text-[var(--muted-foreground)]">{p.confidence}% {t('confidence')}</div>
                                 </div>
                             </div>
                         ))}
@@ -98,14 +99,13 @@ export default function Analysis() {
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
                     <div className="flex items-center gap-2 mb-6 text-[var(--accent)]">
                         <Activity size={24} />
-                        <h2 className="text-xl font-bold">Volatility Index</h2>
+                        <h2 className="text-xl font-bold">{t('volatility')}</h2>
                     </div>
                     <p className="text-[var(--muted-foreground)] mb-4">
-                        Market volatility is currently <strong>MODERATE</strong>. Risk appetite should be balanced.
+                        {t('volatilityDesc')}
                     </p>
-                    {/* Placeholder for a volatility chart or gauge */}
                     <div className="h-48 rounded-lg bg-[var(--secondary)]/50 flex items-center justify-center text-[var(--muted-foreground)]">
-                        Volatility Gauge functionality coming soon
+                        Gauge Placeholder
                     </div>
                 </div>
             </div>

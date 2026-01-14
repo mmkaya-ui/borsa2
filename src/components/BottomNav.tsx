@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BarChart3, Wallet, Search, Settings } from "lucide-react";
-
-const navItems = [
-    { name: "Markets", href: "/", icon: BarChart3 },
-    { name: "Portfolio", href: "/portfolio", icon: Wallet },
-    { name: "Analysis", href: "/analysis", icon: Search },
-    { name: "Settings", href: "/settings", icon: Settings },
-];
+import { useTranslations } from "next-intl";
 
 export default function BottomNav() {
     const pathname = usePathname();
+    const t = useTranslations('Navigation');
+
+    const navItems = [
+        { name: t('markets'), href: "/", icon: BarChart3 },
+        { name: t('portfolio'), href: "/portfolio", icon: Wallet },
+        { name: t('analysis'), href: "/analysis", icon: Search },
+        { name: t('settings'), href: "/settings", icon: Settings },
+    ];
 
     return (
         <nav className="fixed bottom-0 left-0 z-50 w-full border-t border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] sm:hidden">
@@ -21,7 +23,7 @@ export default function BottomNav() {
                     const isActive = pathname === item.href;
                     return (
                         <Link
-                            key={item.name}
+                            key={item.href}
                             href={item.href}
                             className={`flex flex-col items-center justify-center gap-1 p-2 transition-colors ${isActive
                                     ? "text-[var(--primary)]"

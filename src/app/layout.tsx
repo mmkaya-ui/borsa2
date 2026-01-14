@@ -1,3 +1,5 @@
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -29,21 +31,25 @@ export const viewport: Viewport = {
   themeColor: "#0a0a0a",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const messages = await getMessages();
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased selection:bg-[var(--primary)] selection:text-black`}
       >
-        <Sidebar />
-        <main className="min-h-screen p-4 pb-24 pt-[calc(env(safe-area-inset-top)+1rem)] sm:ml-64 sm:pb-4 sm:pt-4">
-          {children}
-        </main>
-        <BottomNav />
+        <NextIntlClientProvider messages={messages}>
+          <Sidebar />
+          <main className="min-h-screen p-4 pb-24 pt-[calc(env(safe-area-inset-top)+1rem)] sm:ml-64 sm:pb-4 sm:pt-4">
+            {children}
+          </main>
+          <BottomNav />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -1,0 +1,46 @@
+{
+    "Navigation": {
+        "markets": "Märkte",
+        "portfolio": "Portfolio",
+        "analysis": "Analyse",
+        "settings": "Einstellungen"
+    },
+    "Dashboard": {
+        "title": "Marktüberblick",
+        "subtitle": "Echtzeit-Einblicke und Leistungsverfolgung",
+        "loading": "Markt wird geladen..."
+    },
+    "Portfolio": {
+        "title": "Mein Portfolio",
+        "subtitle": "Verfolgen Sie Ihre Investitionen",
+        "balance": "Gesamtguthaben",
+        "invested": "Investiert",
+        "profit": "Gesamtgewinn/-verlust",
+        "add": "Aktie hinzufügen",
+        "empty": "Keine Bestände gefunden. Beginnen Sie mit dem Hinzufügen einer Aktie.",
+        "shares": "Anteile"
+    },
+    "Analysis": {
+        "title": "Marktanalyse",
+        "subtitle": "KI-gestützte Manipulationserkennung und Trendvorhersage",
+        "anomalies": "Erkannte Anomalien",
+        "unusual": "Ungewöhnliches Volumen",
+        "predictions": "Trendvorhersagen",
+        "confidence": "Vertrauen",
+        "volatility": "Volatilitätsindex",
+        "volatilityDesc": "Die Marktvolatilität ist derzeit MODERAT."
+    },
+    "Settings": {
+        "title": "Einstellungen",
+        "subtitle": "Verwalten Sie Ihre Einstellungen",
+        "appearance": "Aussehen",
+        "darkMode": "Dunkelmodus",
+        "systemDefault": "Systemstandard ist aktiv.",
+        "data": "Datenverwaltung",
+        "reset": "Portfolio zurücksetzen",
+        "resetDesc": "Löschen Sie alle Ihre aktuellen Bestände.",
+        "clear": "Daten löschen",
+        "confirmReset": "Sind Sie sicher, dass Sie alle Daten löschen möchten?",
+        "info": "App Info"
+    }
+}

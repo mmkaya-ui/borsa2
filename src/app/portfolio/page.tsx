@@ -4,9 +4,11 @@ import { useMarketStore } from "@/store/marketStore";
 import { useEffect } from "react";
 import StockCard from "@/components/StockCard";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function Portfolio() {
     const { stocks, fetchStocks, isLoading, holdings } = useMarketStore();
+    const t = useTranslations('Portfolio');
 
     useEffect(() => {
         if (stocks.length === 0) {
@@ -28,30 +30,30 @@ export default function Portfolio() {
             <header className="flex justify-between items-center">
                 <div>
                     <h1 className="text-4xl font-bold tracking-tight text-[var(--foreground)]">
-                        My <span className="text-gradient">Portfolio</span>
+                        {t('title')}
                     </h1>
                     <p className="text-[var(--muted-foreground)]">
-                        Track your investments and performance.
+                        {t('subtitle')}
                     </p>
                 </div>
                 <button className="flex items-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity">
                     <Plus size={20} />
-                    Add Holding
+                    {t('add')}
                 </button>
             </header>
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
-                    <p className="text-[var(--muted-foreground)] mb-1">Total Balance</p>
+                    <p className="text-[var(--muted-foreground)] mb-1">{t('balance')}</p>
                     <h2 className="text-3xl font-bold">${portfolioValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
                 </div>
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
-                    <p className="text-[var(--muted-foreground)] mb-1">Total Invested</p>
+                    <p className="text-[var(--muted-foreground)] mb-1">{t('invested')}</p>
                     <h2 className="text-3xl font-bold">${totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
                 </div>
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
-                    <p className="text-[var(--muted-foreground)] mb-1">Total Profit/Loss</p>
+                    <p className="text-[var(--muted-foreground)] mb-1">{t('profit')}</p>
                     <div className={`text-3xl font-bold ${totalGain >= 0 ? 'text-[var(--primary)]' : 'text-[var(--destructive)]'}`}>
                         {totalGain >= 0 ? '+' : ''}{totalGain.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         <span className="text-lg ml-2 font-medium">
@@ -64,7 +66,7 @@ export default function Portfolio() {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {holdings.length === 0 ? (
                     <div className="col-span-full py-12 text-center text-[var(--muted-foreground)] border border-dashed border-[var(--border)] rounded-xl">
-                        No holdings found. Start by adding a stock.
+                        {t('empty')}
                     </div>
                 ) : (
                     holdings.map(holding => {
@@ -75,7 +77,7 @@ export default function Portfolio() {
                             <div key={holding.symbol} className="relative">
                                 <StockCard stock={stock} />
                                 <div className="absolute top-0 right-0 p-2 bg-[var(--card)] rounded-bl-xl border-l border-b border-[var(--border)] text-xs font-medium text-[var(--muted-foreground)] z-10 shadow-sm">
-                                    {holding.quantity} Shares
+                                    {holding.quantity} {t('shares')}
                                 </div>
                             </div>
                         );

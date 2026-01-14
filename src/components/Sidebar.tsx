@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BarChart3, Wallet, Search, Settings, User } from "lucide-react";
-
-const navItems = [
-    { name: "Markets", href: "/", icon: BarChart3 },
-    { name: "Portfolio", href: "/portfolio", icon: Wallet },
-    { name: "Analysis", href: "/analysis", icon: Search },
-    { name: "Settings", href: "/settings", icon: Settings },
-];
+import { useTranslations } from "next-intl";
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const t = useTranslations('Navigation');
+
+    const navItems = [
+        { name: t('markets'), href: "/", icon: BarChart3 },
+        { name: t('portfolio'), href: "/portfolio", icon: Wallet },
+        { name: t('analysis'), href: "/analysis", icon: Search },
+        { name: t('settings'), href: "/settings", icon: Settings },
+    ];
 
     return (
         <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 border-r border-[var(--border)] bg-[var(--card)]/50 backdrop-blur-xl transition-transform sm:flex sm:translate-x-0">
@@ -26,12 +28,12 @@ export default function Sidebar() {
                     {navItems.map((item) => {
                         const isActive = pathname === item.href;
                         return (
-                            <li key={item.name}>
+                            <li key={item.href}>
                                 <Link
                                     href={item.href}
                                     className={`group flex items-center rounded-lg p-2 transition-colors ${isActive
-                                        ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                                        : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
+                                            ? "bg-[var(--primary)]/10 text-[var(--primary)]"
+                                            : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
                                         }`}
                                 >
                                     <item.icon className={`h-5 w-5 ${isActive ? "text-[var(--primary)]" : "text-[var(--muted-foreground)] group-hover:text-[var(--foreground)]"}`} />
