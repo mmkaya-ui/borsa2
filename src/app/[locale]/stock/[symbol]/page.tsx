@@ -110,8 +110,8 @@ export default function StockDetail() {
                                     key={range}
                                     onClick={() => setSelectedRange(range.toUpperCase())}
                                     className={`relative z-10 px-4 py-2 rounded-lg text-sm font-bold transition-all active:scale-95 whitespace-nowrap min-w-[3rem] ${selectedRange === range.toUpperCase()
-                                            ? 'bg-[var(--primary)] text-black shadow-lg shadow-[var(--primary)]/20'
-                                            : 'bg-[var(--secondary)]/50 text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] border border-transparent'
+                                        ? 'bg-[var(--primary)] text-black shadow-lg shadow-[var(--primary)]/20'
+                                        : 'bg-[var(--secondary)]/50 text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)] border border-transparent'
                                         }`}
                                 >
                                     {t(`ranges.${range}`, { fallback: range.toUpperCase() })}
@@ -121,7 +121,7 @@ export default function StockDetail() {
                     </div>
                     {/* Render Chart safely only when mounted */}
                     {isMounted && !isChartLoading && chartData.length > 0 ? (
-                        <Chart data={chartData} color={isPositive ? "var(--primary)" : "var(--destructive)"} />
+                        <Chart data={chartData} color={isPositive ? "var(--primary)" : "var(--destructive)"} range={selectedRange} />
                     ) : (
                         <div className="h-[400px] flex items-center justify-center text-[var(--muted-foreground)]">
                             {t('loading')}

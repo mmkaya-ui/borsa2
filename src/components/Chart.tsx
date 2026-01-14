@@ -6,17 +6,42 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 interface ChartProps {
     data: number[];
     color?: string;
+    range?: string;
 }
 
-export default function Chart({ data, color = "var(--primary)" }: ChartProps) {
+export default function Chart({ data, color = "var(--primary)", range = "1D" }: ChartProps) {
     const chartData = useMemo(() => {
         if (!data || data.length === 0) return [];
-        return data.map((val, i) => ({
-            time: i,
-            value: val,
-            formattedTime: `${i}:00` // Placeholder time
-        }));
-    }, [data]);
+
+        return data.map((val, i) => {
+            let label = "";
+            const totalPoints = data.length;
+
+            // Generate mock labels based on range
+            if (range === '1D' || range === '1H' || range === '5M' || range === '4H' || range === '15M') {
+                // Time based
+                const hour = Math.floor(9 + (i / totalPoints) * 8); // Market hours 9-17
+                const minute = Math.floor((i % 4) * 15).toString().padStart(2, '0');
+                label = `${hour}:${minute}`;
+            } else if (range === '1W' || range === '1M') {
+                // Date based (Days)
+                const date = new Date();
+                date.setDate(date.getDate() - (totalPoints - i));
+                label = date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+            } else {
+                // Year based (Months/Years)
+                const date = new Date();
+                date.setMonth(date.getMonth() - Math.floor((totalPoints - i) / 2)); // Approximate
+                label = date.toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
+            }
+
+            return {
+                time: i,
+                value: val,
+                formattedTime: label
+            };
+        });
+    }, [data, range]);
 
     if (!data || data.length === 0) {
         return (
