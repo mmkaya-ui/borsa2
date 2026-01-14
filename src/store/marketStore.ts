@@ -61,7 +61,7 @@ export const useMarketStore = create<MarketState>()(
             }
         }),
         {
-            name: 'borsa-storage',
+            name: 'borsa-storage-v1',
             partialize: (state) => ({ holdings: state.holdings }), // Only persist holdings
         }
     )
