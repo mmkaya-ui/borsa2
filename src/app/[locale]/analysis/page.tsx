@@ -2,7 +2,7 @@
 
 import { useMarketStore } from "@/store/marketStore";
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, TrendingUp, Activity, Info, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, TrendingUp, Activity, Info, CheckCircle2, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { AnalysisUtils } from "@/lib/analysisUtils";
@@ -23,6 +23,21 @@ export default function Analysis() {
 
     const [selectedExchange, setSelectedExchange] = useState<string>('ALL');
 
+    // Sorting State
+    const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: 'riskScore', direction: 'desc' });
+
+    const handleSort = (key: string) => {
+        setSortConfig(current => ({
+            key,
+            direction: current.key === key && current.direction === 'desc' ? 'asc' : 'desc'
+        }));
+    };
+
+    const SortIcon = ({ column }: { column: string }) => {
+        if (sortConfig.key !== column) return <ArrowUpDown size={12} className="opacity-30" />;
+        return sortConfig.direction === 'asc' ? <ArrowUp size={12} className="text-[var(--primary)]" /> : <ArrowDown size={12} className="text-[var(--primary)]" />;
+    };
+
     // Artificial Intelligence Scanner (Real Logic)
     const scannedMarket = useMemo(() => {
         if (stocks.length === 0) return [];
@@ -32,11 +47,46 @@ export default function Analysis() {
             filtered = stocks.filter(s => s.exchange === selectedExchange);
         }
 
-        return filtered.map(stock => {
+        const data = filtered.map(stock => {
             const analysis = AnalysisUtils.analyzeStock(stock.history, stock.volume);
             return { ...stock, analysis };
-        }).sort((a, b) => b.analysis.riskScore - a.analysis.riskScore);
-    }, [stocks, selectedExchange]);
+        });
+
+        // Sorting Logic
+        return data.sort((a, b) => {
+            const { trend: trendA, confidence: confA } = AnalysisUtils.calculateTrend(a.history, a.symbol);
+            const { trend: trendB, confidence: confB } = AnalysisUtils.calculateTrend(b.history, b.symbol);
+
+            let valA: any = '';
+            let valB: any = '';
+
+            switch (sortConfig.key) {
+                case 'symbol':
+                    valA = a.symbol;
+                    valB = b.symbol;
+                    break;
+                case 'price':
+                    valA = a.price;
+                    valB = b.price;
+                    break;
+                case 'riskScore':
+                    valA = a.analysis.riskScore;
+                    valB = b.analysis.riskScore;
+                    break;
+                case 'trend':
+                    // Sort by Trend Direction (Bullish > Bearish) then Confidence
+                    valA = (trendA === 'Bullish' ? 1 : 0) * 1000 + confA;
+                    valB = (trendB === 'Bullish' ? 1 : 0) * 1000 + confB;
+                    break;
+                default:
+                    return 0;
+            }
+
+            if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }, [stocks, selectedExchange, sortConfig]);
 
     const riskyAssets = scannedMarket.filter(item => item.analysis.riskLevel === 'HIGH' || item.analysis.riskLevel === 'MEDIUM');
 
@@ -132,13 +182,35 @@ export default function Analysis() {
                 </div>
 
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden shadow-sm">
-                    {/* Header */}
-                    <div className="grid grid-cols-12 gap-4 p-4 border-b border-[var(--border)] bg-[var(--secondary)]/30 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">
-                        <div className="col-span-4 md:col-span-3">Sembol</div>
-                        <div className="col-span-3 md:col-span-2 text-right">Fiyat</div>
-                        <div className="col-span-3 md:col-span-2 text-right">Risk Analizi</div>
-                        <div className="hidden md:block col-span-3">Trend Beklentisi</div>
-                        <div className="col-span-2 text-right">Durum</div>
+                    {/* Sortable Header */}
+                    <div className="grid grid-cols-12 gap-4 p-4 border-b border-[var(--border)] bg-[var(--secondary)]/30 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider sticky top-0 z-10 backdrop-blur-md">
+                        <div
+                            className="col-span-4 md:col-span-3 flex items-center gap-2 cursor-pointer hover:text-[var(--foreground)] transition-colors select-none"
+                            onClick={() => handleSort('symbol')}
+                        >
+                            Sembol <SortIcon column="symbol" />
+                        </div>
+                        <div
+                            className="col-span-3 md:col-span-2 text-right flex items-center justify-end gap-2 cursor-pointer hover:text-[var(--foreground)] transition-colors select-none"
+                            onClick={() => handleSort('price')}
+                        >
+                            Fiyat <SortIcon column="price" />
+                        </div>
+                        <div
+                            className="col-span-3 md:col-span-2 text-right flex items-center justify-end gap-2 cursor-pointer hover:text-[var(--foreground)] transition-colors select-none"
+                            onClick={() => handleSort('riskScore')}
+                        >
+                            Risk Analizi <SortIcon column="riskScore" />
+                        </div>
+                        <div
+                            className="hidden md:block col-span-3 flex items-center gap-2 cursor-pointer hover:text-[var(--foreground)] transition-colors select-none"
+                            onClick={() => handleSort('trend')}
+                        >
+                            Trend Beklentisi <SortIcon column="trend" />
+                        </div>
+                        <div className="col-span-2 text-right flex items-center justify-end">
+                            Durum
+                        </div>
                     </div>
 
                     {/* Scrollable List */}
