@@ -6,6 +6,7 @@ export interface Stock {
     changePercent: number;
     volume: number;
     exchange: 'BIST' | 'NASDAQ' | 'CRYPTO'; // Added exchange
+    currency: 'TRY' | 'USD'; // Added currency
     history: number[]; // Simple sparkline data
 }
 
@@ -80,6 +81,7 @@ function generateRandomStockData(base: Stock | any): Stock {
         changePercent: parseFloat(changePercent.toFixed(2)),
         volume: Math.floor(Math.random() * 1000000),
         exchange: base.exchange as 'BIST' | 'NASDAQ' | 'CRYPTO',
+        currency: base.exchange === 'BIST' ? 'TRY' : 'USD', // Helper
         history
     };
 }

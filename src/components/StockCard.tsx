@@ -33,7 +33,7 @@ export default function StockCard({ stock }: StockCardProps) {
 
                 <div className="flex items-end justify-between">
                     <div className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
-                        ${stock.price.toFixed(2)}
+                        {stock.currency === 'TRY' ? '₺' : '$'}{stock.price.toFixed(2)}
                     </div>
 
                     {/* Sparkline */}

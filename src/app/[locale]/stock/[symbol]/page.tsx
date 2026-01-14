@@ -95,7 +95,7 @@ export default function StockDetail() {
                 <div className="flex flex-col">
                     <h1 className="text-3xl font-bold flex items-center gap-2">
                         {stock.symbol}
-                        <span className="px-2 py-0.5 rounded text-sm bg-[var(--secondary)] text-[var(--muted-foreground)] font-mono font-normal">USD</span>
+                        <span className="px-2 py-0.5 rounded text-sm bg-[var(--secondary)] text-[var(--muted-foreground)] font-mono font-normal">{stock.currency}</span>
                     </h1>
                     <p className="text-[var(--muted-foreground)]">{stock.name}</p>
                 </div>
@@ -106,7 +106,9 @@ export default function StockDetail() {
                 <div className="md:col-span-2 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
                     <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-4 gap-4">
                         <div>
-                            <div className="text-4xl font-bold tracking-tight">${stock.price.toFixed(2)}</div>
+                            <div className="text-4xl font-bold tracking-tight">
+                                {stock.currency === 'TRY' ? '₺' : '$'}{stock.price.toFixed(2)}
+                            </div>
                             <div className={`flex items-center gap-2 mt-1 ${isPositive ? 'text-[var(--primary)]' : 'text-[var(--destructive)]'}`}>
                                 {isPositive ? <TrendingUp size={20} /> : <TrendingUp size={20} className="rotate-180" />}
                                 <span className="font-semibold">{stock.change > 0 ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent.toFixed(2)}%)</span>
@@ -148,11 +150,15 @@ export default function StockDetail() {
                             </div>
                             <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
                                 <span className="text-[var(--muted-foreground)]">{t('marketCap')}</span>
-                                <span className="font-mono">{(stock.price * 15000000).toLocaleString('en-US', { style: 'currency', currency: 'USD', notation: 'compact' })}</span>
+                                <span className="font-mono">
+                                    {(stock.price * 15000000).toLocaleString('en-US', { style: 'currency', currency: stock.currency, notation: 'compact' })}
+                                </span>
                             </div>
                             <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
                                 <span className="text-[var(--muted-foreground)]">{t('open')}</span>
-                                <span className="font-mono">${(stock.price - stock.change).toFixed(2)}</span>
+                                <span className="font-mono">
+                                    {stock.currency === 'TRY' ? '₺' : '$'}{(stock.price - stock.change).toFixed(2)}
+                                </span>
                             </div>
                         </div>
                     </div>

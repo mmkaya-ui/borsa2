@@ -19,14 +19,35 @@ export default function Portfolio() {
         }
     }, [stocks.length, fetchStocks]);
 
-    const portfolioValue = holdings.reduce((acc, holding) => {
+    // Separate totals for TRY and USD
+    const totalValueTRY = holdings.reduce((acc, holding) => {
         const stock = stocks.find(s => s.symbol === holding.symbol);
-        return acc + (stock ? stock.price * holding.quantity : 0);
+        return acc + (stock && stock.currency === 'TRY' ? stock.price * holding.quantity : 0);
     }, 0);
 
-    const totalCost = holdings.reduce((acc, holding) => acc + (holding.buyPrice * holding.quantity), 0);
-    const totalGain = portfolioValue - totalCost;
-    const totalGainPercent = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
+    const totalValueUSD = holdings.reduce((acc, holding) => {
+        const stock = stocks.find(s => s.symbol === holding.symbol);
+        return acc + (stock && stock.currency !== 'TRY' ? stock.price * holding.quantity : 0);
+    }, 0);
+
+    const totalCostTRY = holdings.reduce((acc, holding) => {
+        const stock = stocks.find(s => s.symbol === holding.symbol);
+        return acc + (stock && stock.currency === 'TRY' ? holding.buyPrice * holding.quantity : 0);
+    }, 0);
+
+    const totalCostUSD = holdings.reduce((acc, holding) => {
+        const stock = stocks.find(s => s.symbol === holding.symbol);
+        return acc + (stock && stock.currency !== 'TRY' ? holding.buyPrice * holding.quantity : 0);
+    }, 0);
+
+    const totalGainTRY = totalValueTRY - totalCostTRY;
+    const totalGainUSD = totalValueUSD - totalCostUSD;
+
+    // Calculate weighted percentage or separate? For simplicity showing combined "Net P/L" card split
+    // or separate rows. Let's show separate lines if both exist.
+
+    const hasTRY = totalValueTRY > 0 || totalCostTRY > 0;
+    const hasUSD = totalValueUSD > 0 || totalCostUSD > 0;
 
     return (
         <div className="max-w-7xl mx-auto flex flex-col gap-8">
@@ -53,19 +74,34 @@ export default function Portfolio() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
                     <p className="text-[var(--muted-foreground)] mb-1">{t('balance')}</p>
-                    <h2 className="text-3xl font-bold">${portfolioValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
+                    <div className="space-y-1">
+                        {hasTRY && <h2 className="text-2xl font-bold">₺{totalValueTRY.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h2>}
+                        {hasUSD && <h2 className="text-2xl font-bold">${totalValueUSD.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h2>}
+                        {!hasTRY && !hasUSD && <h2 className="text-3xl font-bold">$0.00</h2>}
+                    </div>
                 </div>
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
                     <p className="text-[var(--muted-foreground)] mb-1">{t('invested')}</p>
-                    <h2 className="text-3xl font-bold">${totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
+                    <div className="space-y-1">
+                        {hasTRY && <h2 className="text-2xl font-bold">₺{totalCostTRY.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h2>}
+                        {hasUSD && <h2 className="text-2xl font-bold">${totalCostUSD.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h2>}
+                        {!hasTRY && !hasUSD && <h2 className="text-3xl font-bold">$0.00</h2>}
+                    </div>
                 </div>
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
                     <p className="text-[var(--muted-foreground)] mb-1">{t('profit')}</p>
-                    <div className={`text-3xl font-bold ${totalGain >= 0 ? 'text-[var(--primary)]' : 'text-[var(--destructive)]'}`}>
-                        {totalGain >= 0 ? '+' : ''}{totalGain.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        <span className="text-lg ml-2 font-medium">
-                            ({totalGainPercent.toFixed(2)}%)
-                        </span>
+                    <div className="space-y-1">
+                        {hasTRY && (
+                            <div className={`text-2xl font-bold ${totalGainTRY >= 0 ? 'text-[var(--primary)]' : 'text-[var(--destructive)]'}`}>
+                                {totalGainTRY >= 0 ? '+' : ''}₺{totalGainTRY.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </div>
+                        )}
+                        {hasUSD && (
+                            <div className={`text-2xl font-bold ${totalGainUSD >= 0 ? 'text-[var(--primary)]' : 'text-[var(--destructive)]'}`}>
+                                {totalGainUSD >= 0 ? '+' : ''}${totalGainUSD.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </div>
+                        )}
+                        {!hasTRY && !hasUSD && <h2 className="text-3xl font-bold">$0.00</h2>}
                     </div>
                 </div>
             </div>

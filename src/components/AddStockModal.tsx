@@ -118,7 +118,9 @@ export default function AddStockModal({ isOpen, onClose }: { isOpen: boolean; on
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="font-mono font-medium">${stock.price.toFixed(2)}</div>
+                                                <div className="font-mono font-medium">
+                                                    {stock.currency === 'TRY' ? '₺' : '$'}{stock.price.toFixed(2)}
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
@@ -138,7 +140,9 @@ export default function AddStockModal({ isOpen, onClose }: { isOpen: boolean; on
                                     <h3 className="text-xl font-bold">{selectedStock.symbol}</h3>
                                     <p className="text-[var(--muted-foreground)]">{selectedStock.name}</p>
                                 </div>
-                                <div className="text-2xl font-mono">${selectedStock.price}</div>
+                                <div className="text-2xl font-mono">
+                                    {selectedStock.currency === 'TRY' ? '₺' : '$'}{selectedStock.price}
+                                </div>
                             </div>
 
                             <div className="space-y-2">
@@ -165,7 +169,7 @@ export default function AddStockModal({ isOpen, onClose }: { isOpen: boolean; on
                             <div className="pt-4 border-t border-[var(--border)] flex justify-between items-center">
                                 <span className="text-[var(--muted-foreground)]">Toplam Tutar:</span>
                                 <span className="text-xl font-bold text-[var(--primary)]">
-                                    ${(selectedStock.price * quantity).toLocaleString()}
+                                    {selectedStock.currency === 'TRY' ? '₺' : '$'}{(selectedStock.price * quantity).toLocaleString()}
                                 </span>
                             </div>
 
