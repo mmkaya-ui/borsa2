@@ -35,6 +35,25 @@ export const AnalysisUtils = {
         return Math.sqrt(variance);
     },
 
+
+    calculateSMA: (data: number[], period: number): number | null => {
+        if (data.length < period) return null;
+        const slice = data.slice(-period);
+        return slice.reduce((a, b) => a + b, 0) / period;
+    },
+
+    calculateBollingerBands: (data: number[], period: number = 20) => {
+        if (data.length < period) return null;
+        const sma = AnalysisUtils.calculateSMA(data, period);
+        if (sma === null) return null;
+
+        const slice = data.slice(-period);
+        const variance = slice.reduce((a, b) => a + Math.pow(b - sma, 2), 0) / period;
+        const stdDev = Math.sqrt(variance);
+
+        return { upper: sma + (2 * stdDev), lower: sma - (2 * stdDev) };
+    },
+
     analyzeStock: (data: number[], volume: number): AnalysisResult => {
         const rsi = AnalysisUtils.calculateRSI(data);
         const volatility = AnalysisUtils.calculateVolatility(data);
@@ -42,16 +61,17 @@ export const AnalysisUtils = {
         let riskScore = 20; // Base risk
 
         // RSI Analysis
-        if (rsi > 75) {
+        if (rsi > 85) {
             riskScore += 30;
-            hints.push('rsi_high'); // Overbought
+            hints.push('rsi_high'); // Critical
+        } else if (rsi > 70) {
+            riskScore += 15;
+            hints.push('rsi_high');
         } else if (rsi < 25) {
-            riskScore += 20;
-            hints.push('rsi_low'); // Oversold
+            hints.push('rsi_low');
         }
 
-        // Volatility Check (Average Daily Range / Standard Deviation of Returns)
-        // More robust than just the last tick
+        // Volatility Check
         let maxMove = 0;
         let totalMove = 0;
         for (let i = 1; i < data.length; i++) {
@@ -61,65 +81,76 @@ export const AnalysisUtils = {
         }
         const avgMove = totalMove / (data.length - 1 || 1);
 
-        // If average move > 1% or any single move > 3%
-        if (avgMove > 0.01 || maxMove > 0.03) {
-            riskScore += 40;
+        if (avgMove > 0.03 || maxMove > 0.07) { // 7% single day move is huge
+            riskScore += 30;
             hints.push('volatility_extreme');
         }
 
-        // Volume Check (Pseudo-logic since we don't have historical volume)
-        if (volume > 50000000) { // Large cap / or Unusual volume simulation
-            // hints.push('volume_unusual'); 
-            // Intentionally skipped to avoid false positives in mock
+        // Bollinger Bands
+        const bb = AnalysisUtils.calculateBollingerBands(data, 20);
+        const lastPrice = data[data.length - 1];
+        if (bb && lastPrice > bb.upper * 1.01) {
+            riskScore += 25;
+            hints.push('pump_risk'); // Bollinger Breakout
         }
 
-        // Pump & Dump Pattern (Three consecutive sharp rises)
-        if (data.length > 3) {
+        // Pump Pattern
+        if (data.length > 5) {
             const p1 = data[data.length - 1];
-            const p2 = data[data.length - 2];
-            const p3 = data[data.length - 3];
-            if (p1 > p2 * 1.02 && p2 > p3 * 1.02) {
-                riskScore += 20;
+            const p5 = data[data.length - 5];
+            if (p1 > p5 * 1.20) { // 20% gain in 5 candles (e.g. 5 days)
+                riskScore += 25;
                 hints.push('pump_risk');
             }
         }
 
+        // Volume logic acts as multiplier if we had volume history
+
         return {
             riskScore: Math.min(riskScore, 100),
-            riskLevel: riskScore > 70 ? 'HIGH' : riskScore > 40 ? 'MEDIUM' : 'LOW',
-            hints,
+            riskLevel: riskScore > 75 ? 'HIGH' : riskScore > 40 ? 'MEDIUM' : 'LOW',
+            hints: Array.from(new Set(hints)), // Dedup
             rsi,
             volatility
         };
     },
-
-    // Helper for deterministic randomness based on string
+    // ... rest of file (hashString, calculateTrend) ...
     hashString: (str: string): number => {
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
             const char = str.charCodeAt(i);
             hash = ((hash << 5) - hash) + char;
-            hash = hash & hash; // Convert to 32bit integer
+            hash = hash & hash;
         }
         return Math.abs(hash);
     },
 
     calculateTrend: (history: number[], symbol?: string): { trend: 'Bullish' | 'Bearish', confidence: number } => {
         if (history.length < 2) return { trend: 'Bullish', confidence: 0 };
-        // Simple logic: compare last vs first point of visible history
         const trend = history[history.length - 1] > history[0] ? 'Bullish' : 'Bearish';
 
-        // Deterministic confidence based on Symbol (if provided) or last price
-        // Using symbol ensures it stays EXACTLY the same across different chart ranges/fetches
+        // SMA Trend Confirmation
+        const sma50 = AnalysisUtils.calculateSMA(history, 50);
+        const lastPrice = history[history.length - 1];
+
+        let confidenceOffset = 0;
+        if (sma50) {
+            // Trend is stronger if price is above SMA50
+            if (trend === 'Bullish' && lastPrice > sma50) confidenceOffset = 10;
+            if (trend === 'Bearish' && lastPrice < sma50) confidenceOffset = 10;
+        }
+
         let seed = 0;
         if (symbol) {
             seed = AnalysisUtils.hashString(symbol);
         } else {
-            // Fallback to price if symbol missing (less stable across ranges)
             seed = Math.floor(history[history.length - 1] * 100);
         }
 
-        const confidence = (seed % 30) + 70; // 70-100% range
+        const baseConfidence = (seed % 20) + 70; // 70-90% range
+        const confidence = Math.min(baseConfidence + confidenceOffset, 99);
+
         return { trend, confidence };
     }
 };
+

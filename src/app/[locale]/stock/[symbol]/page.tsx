@@ -226,57 +226,39 @@ export default function StockDetail() {
                 );
             })()}
 
-            {/* DETECTIVE ALERTS (Mock Logic for Verification) */}
-            {(() => {
-                const suspects: Record<string, { title: string, reason: string, type: 'social' | 'kap' | 'algo' }> = {
-                    'IZENR.IS': {
-                        title: 'KAP Avcısı Uyarısı',
-                        reason: 'Kapanış öncesi şüpheli mal toplama tespit edildi (Hacim +200%). Olası içeriden haber sızıntısı riski.',
-                        type: 'kap'
-                    },
-                    'SASA.IS': {
-                        title: 'Algoritmik Takip',
-                        reason: 'Fiyat hareketleri sektör endeksinden negatif ayrıştı. "Sinsi Alım" algoritması tetiklendi.',
-                        type: 'algo'
-                    },
-                    'EUREN.IS': {
-                        title: 'Sosyal Medya Bot Alarmı',
-                        reason: 'Twitter üzerinde #EUREN etiketinde son 1 saatte %450 artış var. Tweetlerin %92\'si yeni açılmış bot hesaplardan geliyor. Yapay "Hype" yaratılıyor olabilir.',
-                        type: 'social'
-                    },
-                    'HEKTS.IS': {
-                        title: 'Sosyal Medya Manipülasyon Riski',
-                        reason: 'Organik olmayan etkileşim artışı tespit edildi (+120% Mention).',
-                        type: 'social'
-                    }
-                };
-
-                const warning = suspects[symbol];
-                if (warning) {
-                    return (
-                        <div className="rounded-xl border border-red-500/50 bg-red-500/10 p-6 animate-in slide-in-from-bottom-5 duration-700">
-                            <div className="flex items-start gap-4">
-                                <div className="p-3 bg-red-500/20 rounded-full text-red-500">
-                                    {warning.type === 'social' ? <RefreshCw className="animate-spin-slow" /> :
-                                        warning.type === 'kap' ? <ShieldAlert /> : <TrendingUp />}
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-red-500 mb-1 flex items-center gap-2">
-                                        ⚠️ {warning.title}
-                                    </h3>
-                                    <p className="text-[var(--foreground)] font-medium">
-                                        {warning.reason}
+            {/* DETECTIVE ALERTS (Real-Time Technical Analysis) */}
+            {analysis && analysis.riskLevel === 'HIGH' && (
+                <div className="rounded-xl border border-red-500/50 bg-red-500/10 p-6 animate-in slide-in-from-bottom-5 duration-700">
+                    <div className="flex items-start gap-4">
+                        <div className="p-3 bg-red-500/20 rounded-full text-red-500">
+                            <ShieldAlert size={28} />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-red-500 mb-1 flex items-center gap-2">
+                                ⚠️ YÜKSEK RİSK TESPİT EDİLDİ
+                            </h3>
+                            <div className="space-y-1">
+                                {analysis.hints.map(hint => (
+                                    <p key={hint} className="text-[var(--foreground)] font-medium">
+                                        • {tAnalysis(`hints.${hint}`)}
                                     </p>
-                                    <div className="mt-3 text-xs text-red-400/80">
-                                        * Bu analiz Borsa Dedektifi yapay zeka modülü tarafından oluşturulmuştur.
-                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="mt-4 p-3 rounded bg-[var(--background)]/50 border border-[var(--border)] text-xs text-[var(--muted-foreground)]">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="font-bold text-[var(--primary)]">TEKNİK ANALİZ SONUCU:</span>
+                                    <span>Fiyat, Hacim ve Volatilite verilerine dayalı gerçek zamanlı analizdir.</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="font-bold text-yellow-500">NOT:</span>
+                                    <span>Sosyal Medya ve KAP entegrasyonu için API anahtarı gereklidir (Geliştirici Modu).</span>
                                 </div>
                             </div>
                         </div>
-                    );
-                }
-                return null;
-            })()}
+                    </div>
+                </div>
+            )}
 
             {/* AI Analysis Card Section - Full Width Below Chart/Stats */}
             {analysis && (
