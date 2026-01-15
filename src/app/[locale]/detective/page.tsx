@@ -3,6 +3,7 @@ import { StockDetective } from "@/lib/detective";
 import RiskScoreCard from "@/components/detective/RiskScoreCard";
 import AnomalyList from "@/components/detective/AnomalyList";
 import { Siren, Newspaper, RefreshCcw } from "lucide-react";
+import { Link } from "@/i18n/routing";
 
 export default async function DetectivePage() {
     const detective = new StockDetective();
@@ -25,8 +26,10 @@ export default async function DetectivePage() {
             {/* Main Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {results.map((stock) => (
-                    <div key={stock.symbol} className="flex flex-col gap-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--card)]/50">
-                        <RiskScoreCard score={stock.riskScore} symbol={stock.symbol} />
+                    <div key={stock.symbol} className="flex flex-col gap-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--card)]/50 transition-colors hover:border-[var(--primary)]/50">
+                        <Link href={`/stock/${stock.symbol}`} className="hover:opacity-80 transition-opacity">
+                            <RiskScoreCard score={stock.riskScore} symbol={stock.symbol} />
+                        </Link>
 
                         <div className="flex justify-between text-sm">
                             <span className="text-[var(--muted-foreground)]">Fiyat:</span>
@@ -62,7 +65,7 @@ export default async function DetectivePage() {
                         <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
                         <div className="flex-1">
                             <div className="flex justify-between mb-1">
-                                <span className="font-bold">IZENR.IS</span>
+                                <Link href="/stock/IZENR.IS" className="font-bold hover:underline hover:text-blue-500">IZENR.IS</Link>
                                 <span className="text-xs text-[var(--muted-foreground)]">2 saat önce</span>
                             </div>
                             <p className="text-sm text-[var(--foreground)]">
@@ -75,7 +78,7 @@ export default async function DetectivePage() {
                         <div className="h-2 w-2 rounded-full bg-orange-500" />
                         <div className="flex-1">
                             <div className="flex justify-between mb-1">
-                                <span className="font-bold">SASA.IS</span>
+                                <Link href="/stock/SASA.IS" className="font-bold hover:underline hover:text-blue-500">SASA.IS</Link>
                                 <span className="text-xs text-[var(--muted-foreground)]">Dün</span>
                             </div>
                             <p className="text-sm text-[var(--foreground)]">
@@ -97,11 +100,11 @@ export default async function DetectivePage() {
                         <h3 className="font-bold mb-2">Trend Olanlar (#BIST)</h3>
                         <ul className="space-y-2 text-sm">
                             <li className="flex justify-between">
-                                <span>#EUREN</span>
+                                <Link href="/stock/EUREN.IS" className="hover:underline hover:text-blue-500">#EUREN</Link>
                                 <span className="text-green-500 font-bold">+450% Bahsedilme</span>
                             </li>
                             <li className="flex justify-between">
-                                <span>#HEKTS</span>
+                                <Link href="/stock/HEKTS.IS" className="hover:underline hover:text-blue-500">#HEKTS</Link>
                                 <span className="text-green-500 font-bold">+120% Bahsedilme</span>
                             </li>
                         </ul>
@@ -109,7 +112,7 @@ export default async function DetectivePage() {
                     <div className="p-4 rounded-lg bg-[var(--card)] border border-[var(--border)]">
                         <h3 className="font-bold mb-2">Bot Aktivite Alarmı</h3>
                         <p className="text-sm text-red-400">
-                            #EUREN etiketinde yüksek bot aktivitesi tespit edildi. Son saatte yeni açılan hesaplardan 400+ tweet. Yapay coşku olasılığı: %92.
+                            <Link href="/stock/EUREN.IS" className="font-bold underline">#EUREN</Link> etiketinde yüksek bot aktivitesi tespit edildi. Son saatte yeni açılan hesaplardan 400+ tweet. Yapay coşku olasılığı: %92.
                         </p>
                     </div>
                 </div>
