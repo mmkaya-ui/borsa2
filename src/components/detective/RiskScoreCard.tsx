@@ -10,18 +10,18 @@ export default function RiskScoreCard({ score, symbol }: RiskScoreCardProps) {
     let color = "text-green-500";
     let bg = "bg-green-500/10";
     let Icon = ShieldCheck;
-    let label = "SAFE";
+    let label = "GÜVENLİ";
 
     if (score >= 80) {
         color = "text-red-500";
         bg = "bg-red-500/10";
         Icon = ShieldAlert;
-        label = "DANGER";
+        label = "TEHLİKELİ";
     } else if (score >= 40) {
         color = "text-yellow-500";
         bg = "bg-yellow-500/10";
         Icon = AlertTriangle;
-        label = "WARNING";
+        label = "RISKLİ";
     }
 
     return (
@@ -40,7 +40,7 @@ export default function RiskScoreCard({ score, symbol }: RiskScoreCardProps) {
             </div>
 
             <p className="text-xs text-[var(--muted-foreground)] text-center">
-                Manipulation Risk Score
+                Manipülasyon Risk Puanı
             </p>
         </div>
     );

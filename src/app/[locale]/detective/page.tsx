@@ -15,10 +15,10 @@ export default async function DetectivePage() {
             <div className="flex flex-col gap-2">
                 <h1 className="text-3xl font-bold flex items-center gap-2">
                     <Siren className="text-red-500" />
-                    Stock Detective Mode
+                    Borsa Dedektif Modu
                 </h1>
                 <p className="text-[var(--muted-foreground)]">
-                    AI-powered forensic analysis to detect market manipulation, pump & dump schemes, and unusually high-risk movements.
+                    Piyasa manipülasyonlarını, pump & dump şemalarını ve yüksek riskli hareketleri tespit eden yapay zeka destekli adli analiz.
                 </p>
             </div>
 
@@ -29,11 +29,11 @@ export default async function DetectivePage() {
                         <RiskScoreCard score={stock.riskScore} symbol={stock.symbol} />
 
                         <div className="flex justify-between text-sm">
-                            <span className="text-[var(--muted-foreground)]">Price:</span>
+                            <span className="text-[var(--muted-foreground)]">Fiyat:</span>
                             <span className="font-mono font-bold">{stock.price.toFixed(2)} TL</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                            <span className="text-[var(--muted-foreground)]">Change:</span>
+                            <span className="text-[var(--muted-foreground)]">Değişim:</span>
                             <span className={`font-mono font-bold ${stock.changePercent > 0 ? 'text-green-500' : 'text-red-500'}`}>
                                 {stock.changePercent > 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
                             </span>
@@ -45,7 +45,7 @@ export default async function DetectivePage() {
 
                         <div className="h-px bg-[var(--border)] my-2" />
 
-                        <h4 className="text-sm font-semibold">Diagnosis:</h4>
+                        <h4 className="text-sm font-semibold">Teşhis:</h4>
                         <AnomalyList reasons={stock.riskReasons} />
                     </div>
                 ))}
@@ -55,7 +55,7 @@ export default async function DetectivePage() {
             <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-6">
                 <h2 className="text-xl font-bold flex items-center gap-2 mb-4 text-yellow-500">
                     <Newspaper />
-                    KAP Hunter (Beta) - Pre-News Drift Detection
+                    KAP Avcısı (Beta) - Haber Öncesi Sızıntı Tespiti
                 </h2>
                 <div className="space-y-4">
                     <div className="flex items-center gap-4 p-4 rounded-lg bg-[var(--card)] border border-[var(--border)]">
@@ -63,10 +63,10 @@ export default async function DetectivePage() {
                         <div className="flex-1">
                             <div className="flex justify-between mb-1">
                                 <span className="font-bold">IZENR.IS</span>
-                                <span className="text-xs text-[var(--muted-foreground)]">2 hours ago</span>
+                                <span className="text-xs text-[var(--muted-foreground)]">2 saat önce</span>
                             </div>
                             <p className="text-sm text-[var(--foreground)]">
-                                Suspicious accumulation detected before Close (Volume +200%). Possible insider news pending.
+                                Kapanış öncesi şüpheli mal toplama (Hacim +200%). Olası içeriden haber sızıntısı.
                             </p>
                         </div>
                     </div>
@@ -76,10 +76,10 @@ export default async function DetectivePage() {
                         <div className="flex-1">
                             <div className="flex justify-between mb-1">
                                 <span className="font-bold">SASA.IS</span>
-                                <span className="text-xs text-[var(--muted-foreground)]">Yesterday</span>
+                                <span className="text-xs text-[var(--muted-foreground)]">Dün</span>
                             </div>
                             <p className="text-sm text-[var(--foreground)]">
-                                Price diverging from sector index. "Stealth Buy" algorithm triggered.
+                                Fiyat sektör endeksinden ayrıştı. "Sinsi Alım" algoritması tetiklendi.
                             </p>
                         </div>
                     </div>
@@ -90,26 +90,26 @@ export default async function DetectivePage() {
             <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-6">
                 <h2 className="text-xl font-bold flex items-center gap-2 mb-4 text-blue-500">
                     <RefreshCcw className="animate-spin-slow" />
-                    Social Media Hype Radar
+                    Sosyal Medya Hype Radarı
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="p-4 rounded-lg bg-[var(--card)] border border-[var(--border)]">
-                        <h3 className="font-bold mb-2">Top Trending (#BIST)</h3>
+                        <h3 className="font-bold mb-2">Trend Olanlar (#BIST)</h3>
                         <ul className="space-y-2 text-sm">
                             <li className="flex justify-between">
                                 <span>#EUREN</span>
-                                <span className="text-green-500 font-bold">+450% Mentions</span>
+                                <span className="text-green-500 font-bold">+450% Bahsedilme</span>
                             </li>
                             <li className="flex justify-between">
                                 <span>#HEKTS</span>
-                                <span className="text-green-500 font-bold">+120% Mentions</span>
+                                <span className="text-green-500 font-bold">+120% Bahsedilme</span>
                             </li>
                         </ul>
                     </div>
                     <div className="p-4 rounded-lg bg-[var(--card)] border border-[var(--border)]">
-                        <h3 className="font-bold mb-2">Bot Activity Alert</h3>
+                        <h3 className="font-bold mb-2">Bot Aktivite Alarmı</h3>
                         <p className="text-sm text-red-400">
-                            High bot activity detected on #EUREN tag. 400+ tweets from new accounts in last hour. Artificial hype probability: 92%.
+                            #EUREN etiketinde yüksek bot aktivitesi tespit edildi. Son saatte yeni açılan hesaplardan 400+ tweet. Yapay coşku olasılığı: %92.
                         </p>
                     </div>
                 </div>

@@ -9,7 +9,7 @@ export default function AnomalyList({ reasons }: AnomalyListProps) {
     if (!reasons || reasons.length === 0) {
         return (
             <div className="p-4 rounded-lg bg-green-500/5 border border-green-500/20 text-green-500 text-sm">
-                No anomalies detected. Valid organic movement.
+                Anomali tespit edilmedi. Organik piyasa hareketi.
             </div>
         );
     }
