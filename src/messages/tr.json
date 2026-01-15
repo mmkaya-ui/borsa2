@@ -95,6 +95,9 @@
         "volume": "Hacim",
         "marketCap": "Piyasa Değeri",
         "open": "Açılış",
+        "prevClose": "Önceki Kapanış",
+        "dayHigh": "Gün En Yüksek",
+        "dayLow": "Gün En Düşük",
         "realtimeTitle": "Gerçek Zamanlı Güncellemeler",
         "realtimeLiveDesc": "Piyasa verileri anlık veri akışı ile canlı olarak güncellenmektedir.",
         "ranges": {

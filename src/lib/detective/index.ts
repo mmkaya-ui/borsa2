@@ -94,6 +94,9 @@ export class StockDetective {
             const rsi = this.calculateRSI(closePrices);
             const avgVolume = this.calculateAvgVolume(volumes);
             const volatility = this.calculateVolatility(closePrices);
+            const sma50 = this.calculateSMA(closePrices, 50);
+            const sma200 = this.calculateSMA(closePrices, 200);
+            const bollinger = this.calculateBollingerBands(closePrices, 20);
 
             const { score, reasons } = this.calculateRiskScore({
                 price: currentPrice,
@@ -102,7 +105,11 @@ export class StockDetective {
                 rsi,
                 changePercent,
                 volatility,
-                peRatio: quote.trailingPE
+                peRatio: quote.trailingPE,
+                sma50,
+                sma200,
+                bollingerUpper: bollinger.upper,
+                bollingerLower: bollinger.lower
             });
 
             return {
@@ -127,8 +134,7 @@ export class StockDetective {
     private calculateRSI(prices: number[], period: number = 14): number {
         if (prices.length < period + 1) return 50;
 
-        let gains = 0;
-        let losses = 0;
+        let gains = 0, losses = 0;
 
         for (let i = prices.length - period; i < prices.length; i++) {
             const diff = prices[i] - prices[i - 1];
@@ -137,32 +143,41 @@ export class StockDetective {
         }
 
         if (losses === 0) return 100;
-        if (gains === 0) return 0;
 
-        let avgGain = gains / period;
-        let avgLoss = losses / period;
-
-        const rs = avgGain / avgLoss;
+        const rs = (gains / period) / (losses / period);
         return 100 - (100 / (1 + rs));
     }
 
     private calculateAvgVolume(volumes: number[], period: number = 20): number {
         const slice = volumes.slice(-period);
-        const sum = slice.reduce((a, b) => a + b, 0);
-        return sum / slice.length;
+        return slice.reduce((a, b) => a + b, 0) / slice.length;
     }
 
     private calculateVolatility(prices: number[], period: number = 20): number {
         if (prices.length < 2) return 0;
-        // Calculate standard deviation of returns
         const returns = [];
         for (let i = 1; i < prices.length; i++) {
             returns.push((prices[i] - prices[i - 1]) / prices[i - 1]);
         }
-        const recentReturns = returns.slice(-period);
-        const mean = recentReturns.reduce((a, b) => a + b, 0) / recentReturns.length;
-        const variance = recentReturns.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / recentReturns.length;
-        return Math.sqrt(variance) * 100; // as percent
+        const slice = returns.slice(-period);
+        const mean = slice.reduce((a, b) => a + b, 0) / slice.length;
+        const variance = slice.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / slice.length;
+        return Math.sqrt(variance) * 100;
+    }
+
+    private calculateSMA(prices: number[], period: number): number | null {
+        if (prices.length < period) return null;
+        const slice = prices.slice(-period);
+        return slice.reduce((a, b) => a + b, 0) / period;
+    }
+
+    private calculateBollingerBands(prices: number[], period: number = 20): { upper: number, lower: number, middle: number } {
+        if (prices.length < period) return { upper: 0, lower: 0, middle: 0 };
+        const sma = this.calculateSMA(prices, period) || 0;
+        const slice = prices.slice(-period);
+        const variance = slice.reduce((a, b) => a + Math.pow(b - sma, 2), 0) / period;
+        const stdDev = Math.sqrt(variance);
+        return { middle: sma, upper: sma + (2 * stdDev), lower: sma - (2 * stdDev) };
     }
 
     private calculateRiskScore(data: {
@@ -173,47 +188,57 @@ export class StockDetective {
         changePercent: number;
         volatility: number;
         peRatio?: number;
+        sma50?: number | null;
+        sma200?: number | null;
+        bollingerUpper: number;
+        bollingerLower: number;
     }): { score: number; reasons: string[] } {
         let score = 0;
         const reasons: string[] = [];
 
-        // 1. Volume Anomaly (Pump Signal)
+        // 1. Volume Anomaly
         const volumeRatio = data.avgVolume > 0 ? data.volume / data.avgVolume : 0;
         if (volumeRatio > 3.0) {
             score += 25;
-            reasons.push("ANORMAL HACİM (Olası Operasyon Hazırlığı)");
+            reasons.push("ANORMAL HACİM (Ortalamanın 3 katı)");
         } else if (volumeRatio > 2.0) {
             score += 10;
             reasons.push("Yüksek Hacim Artışı");
         }
 
-        // 2. RSI Overbought
+        // 2. RSI Extremes
         if (data.rsi > 85) {
             score += 25;
-            reasons.push("RSI KRİTİK SEVİYE (>85)");
+            reasons.push("RSI KRİTİK (>85 Aşırı Alım)");
         } else if (data.rsi > 75) {
             score += 15;
-            reasons.push("RSI Yüksek (Aşırı Alım)");
+            reasons.push("RSI Yüksek");
+        } else if (data.rsi < 20) {
+            reasons.push("RSI Dip (Aşırı Satım Potansiyeli)"); // Positive signal usually, but worth noting
         }
 
         // 3. Volatility Spike
-        if (data.volatility > 5) { // > 5% daily volatility is huge
+        if (data.volatility > 5) {
             score += 15;
-            reasons.push("YÜKSEK VOLATİLİTE (Sert Hareketler)");
+            reasons.push("YÜKSEK VOLATİLİTE (Sert Fiyat Hareketleri)");
         }
 
-        // 4. Price Spike (Momentum)
-        if (data.changePercent > 9.0) {
-            score += 15;
-            reasons.push("TAVAN HAREKETİ (Agresif Yükseliş)");
-        } else if (data.changePercent > 5.0) {
-            score += 5;
+        // 4. Bollinger Band Breakout
+        if (data.bollingerUpper > 0 && data.price > data.bollingerUpper * 1.02) {
+            score += 20;
+            reasons.push("BOLLINGER PATLAMASI (Üst Bandın Üzerinde)");
         }
 
-        // 5. Fundamental/Technical Mismatch
+        // 5. Trend Deviation (Pump in Downtrend)
+        if (data.sma200 && data.price < data.sma200 && data.changePercent > 5) {
+            score += 15;
+            reasons.push("DÜŞÜŞ TRENDİNDE TEPKİ (Ölü Kedi Sıçraması Riski)");
+        }
+
+        // 6. Fundamental Mismatch (Zombie Company)
         if ((!data.peRatio || data.peRatio < 0 || data.peRatio > 50) && data.changePercent > 5) {
             score += 30;
-            reasons.push("TEMEL-TEKNİK UYUMSUZLUĞU (Balon Riski)");
+            reasons.push("TEMEL UYUMSUZLUK (Zarar Eden Şirkette Ralli)");
         }
 
         return { score: Math.min(score, 100), reasons };
