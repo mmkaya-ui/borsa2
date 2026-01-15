@@ -37,10 +37,27 @@ export default function StockDetail() {
     }, [stocks.length, fetchStocks]);
 
     useEffect(() => {
-        const found = stocks.find(s => s.symbol === symbol);
-        if (found) {
-            setStock(found);
-        }
+        const loadStock = async () => {
+            // 1. Try to find in global store first (instant)
+            const found = stocks.find(s => s.symbol === symbol);
+            if (found) {
+                setStock(found);
+                return;
+            }
+
+            // 2. If not in store, fetch individual record
+            setIsChartLoading(true);
+            try {
+                const fetched = await MarketAPI.getStock(symbol);
+                if (fetched) setStock(fetched);
+            } catch (err) {
+                console.error("Stock fetch failed", err);
+            } finally {
+                setIsChartLoading(false);
+            }
+        };
+
+        loadStock();
     }, [stocks, symbol]);
 
     // Range Selection State
