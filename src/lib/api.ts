@@ -206,7 +206,15 @@ const NASDAQ_STOCKS = [
     { symbol: "CL", name: "Colgate-Palmolive", basePrice: 85 },
     { symbol: "EL", name: "Estee Lauder", basePrice: 140 },
     { symbol: "NOC", name: "Northrop Grumman", basePrice: 460 },
-    { symbol: "GD", name: "General Dynamics", basePrice: 270 }
+    { symbol: "GD", name: "General Dynamics", basePrice: 270 },
+    // Global Radar Symbols
+    { symbol: "TUR", name: "iShares MSCI Turkey ETF", basePrice: 35 },
+    { symbol: "SPY", name: "SPDR S&P 500 ETF", basePrice: 500 },
+    { symbol: "QQQ", name: "Invesco QQQ", basePrice: 430 },
+    { symbol: "UUP", name: "Invesco DB US Dollar", basePrice: 28 },
+    { symbol: "GLD", name: "SPDR Gold Shares", basePrice: 190 },
+    { symbol: "VIX", name: "Volatility Index", basePrice: 15 }, // NOTE: VIX might not be tradeable on all platforms directly as stock, but we track it.
+    { symbol: "USO", name: "United States Oil Fund", basePrice: 70 }
 ];
 
 const CRYPTO_STOCKS = [

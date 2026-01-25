@@ -9,6 +9,7 @@ import { memo } from "react";
 import { useMarketAnalysis } from "@/hooks/useMarketAnalysis";
 
 import { Stock } from "@/lib/api";
+import { GlobalRadar } from "@/components/GlobalRadar";
 
 interface MarketScannerRowProps {
     stock: Stock & { analysis: any }; // Enhancing Stock with analysis property check
@@ -185,6 +186,9 @@ export default function Analysis() {
                     ))}
                 </div>
             </header>
+
+            {/* Global Radar (Whale Hunting/VIGIL) */}
+            <GlobalRadar stocks={stocks} />
 
             {/* MARKET SCANNER LIST */}
             <div className="flex flex-col gap-6">
