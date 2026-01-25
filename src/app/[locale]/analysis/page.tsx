@@ -1,5 +1,6 @@
 "use client";
 
+// Vercel build trigger fix
 import { useMarketStore } from "@/store/marketStore";
 import { useEffect, useMemo, useState, memo } from "react";
 import { AlertTriangle, TrendingUp, Activity, Info, CheckCircle2, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
