@@ -544,5 +544,26 @@ export const MarketAPI = {
             s.symbol.toLowerCase().includes(lowerQuery) ||
             s.name.toLowerCase().includes(lowerQuery)
         ).map(generateRandomStockData);
+    },
+
+    getStock: async (symbol: string): Promise<Stock | null> => {
+        // Simulate network
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        let stock = MOCK_STOCKS.find(s => s.symbol === symbol || s.symbol === symbol + ".IS"); // Handle optional .IS suffix
+
+        if (!stock) {
+            // Fallback: Generate a generic stock for "Unknown" symbols so the UI works
+            const isBist = symbol.endsWith('.IS') || !symbol.includes('-');
+            const name = symbol.split('.')[0];
+            stock = {
+                symbol: symbol,
+                name: `${name} Incorporated`,
+                basePrice: 100 + Math.random() * 50,
+                exchange: isBist ? 'BIST' : 'NASDAQ',
+            } as any;
+        }
+
+        return generateRandomStockData(stock);
     }
 };

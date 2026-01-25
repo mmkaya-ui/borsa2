@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, Link } from "@/i18n/routing";
-import { BarChart3, Wallet, Search, Settings } from "lucide-react";
+import { BarChart3, Wallet, Search, Settings, ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export default function BottomNav() {
@@ -12,6 +12,7 @@ export default function BottomNav() {
         { name: t('markets'), href: "/", icon: BarChart3 },
         { name: t('portfolio'), href: "/portfolio", icon: Wallet },
         { name: t('analysis'), href: "/analysis", icon: Search },
+        { name: t('detective'), href: "/detective", icon: ShieldAlert },
         { name: t('settings'), href: "/settings", icon: Settings },
     ];
 

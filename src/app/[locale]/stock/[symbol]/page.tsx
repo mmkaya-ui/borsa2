@@ -37,10 +37,27 @@ export default function StockDetail() {
     }, [stocks.length, fetchStocks]);
 
     useEffect(() => {
-        const found = stocks.find(s => s.symbol === symbol);
-        if (found) {
-            setStock(found);
-        }
+        const loadStock = async () => {
+            // 1. Try to find in global store first (instant)
+            const found = stocks.find(s => s.symbol === symbol);
+            if (found) {
+                setStock(found);
+                return;
+            }
+
+            // 2. If not in store, fetch individual record
+            setIsChartLoading(true);
+            try {
+                const fetched = await MarketAPI.getStock(symbol);
+                if (fetched) setStock(fetched);
+            } catch (err) {
+                console.error("Stock fetch failed", err);
+            } finally {
+                setIsChartLoading(false);
+            }
+        };
+
+        loadStock();
     }, [stocks, symbol]);
 
     // Range Selection State
@@ -225,6 +242,40 @@ export default function StockDetail() {
                     </div>
                 );
             })()}
+
+            {/* DETECTIVE ALERTS (Real-Time Technical Analysis) */}
+            {analysis && analysis.riskLevel === 'HIGH' && (
+                <div className="rounded-xl border border-red-500/50 bg-red-500/10 p-6 animate-in slide-in-from-bottom-5 duration-700">
+                    <div className="flex items-start gap-4">
+                        <div className="p-3 bg-red-500/20 rounded-full text-red-500">
+                            <ShieldAlert size={28} />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-red-500 mb-1 flex items-center gap-2">
+                                ⚠️ YÜKSEK RİSK TESPİT EDİLDİ
+                            </h3>
+                            <div className="space-y-1">
+                                {analysis.hints.map(hint => (
+                                    <p key={hint} className="text-[var(--foreground)] font-medium">
+                                        • {tAnalysis(`hints.${hint}`)}
+                                    </p>
+                                ))}
+                            </div>
+
+                            <div className="mt-4 p-3 rounded bg-[var(--background)]/50 border border-[var(--border)] text-xs text-[var(--muted-foreground)]">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="font-bold text-[var(--primary)]">TEKNİK ANALİZ SONUCU:</span>
+                                    <span>Fiyat, Hacim ve Volatilite verilerine dayalı gerçek zamanlı analizdir.</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="font-bold text-yellow-500">NOT:</span>
+                                    <span>Sosyal Medya ve KAP entegrasyonu için API anahtarı gereklidir (Geliştirici Modu).</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* AI Analysis Card Section - Full Width Below Chart/Stats */}
             {analysis && (

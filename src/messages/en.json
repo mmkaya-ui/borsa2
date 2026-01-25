@@ -3,6 +3,7 @@
         "markets": "Markets",
         "portfolio": "Portfolio",
         "analysis": "Analysis",
+        "detective": "Detective",
         "settings": "Settings"
     },
     "Dashboard": {
@@ -65,6 +66,9 @@
         "volume": "Volume",
         "marketCap": "Market Cap",
         "open": "Open",
+        "prevClose": "Prev. Close",
+        "dayHigh": "Day High",
+        "dayLow": "Day Low",
         "realtimeTitle": "Real-time Updates",
         "realtimeDesc": "This data is being updated in real-time via WebSocket connection (simulated).",
         "ranges": {
