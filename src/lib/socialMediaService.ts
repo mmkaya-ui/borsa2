@@ -21,13 +21,13 @@ export const SocialMediaService = {
 
         if (priceChange < -2) {
             twitterScore = -0.8;
-            twitterSummary = "🔥 Panic selling trending. Users mentioning 'crash' and 'stop loss'.";
+            twitterSummary = "🔥 Panik satışları gündemde. Kullanıcılar 'çöküş' ve 'stop patladı' konuşuyor.";
         } else if (priceChange > 2) {
             twitterScore = 0.9;
-            twitterSummary = "🚀 'Moon' and 'ATH' trending. High retail euphoria.";
+            twitterSummary = "🚀 'Uçuş' ve 'Tavan' gündemde. Küçük yatırımcı coşkusu yüksek.";
         } else {
             twitterScore = 0.1;
-            twitterSummary = "Mixed sentiment. Discussions on resistance levels.";
+            twitterSummary = "Karışık seyir. Direnç seviyeleri tartışılıyor.";
         }
 
         signals.push({
@@ -35,7 +35,7 @@ export const SocialMediaService = {
             sentimentScore: twitterScore,
             volume: Math.floor(Math.random() * 5000) + 1000,
             summary: twitterSummary,
-            trendingTopics: priceChange < 0 ? ['#crash', '#bearmarket'] : ['#bullrun', '#mooning']
+            trendingTopics: priceChange < 0 ? ['#çöküş', '#ayıpiyasası'] : ['#ralli', '#tavan']
         });
 
         // 2. Simulate Reddit (WallStreetBets style)
@@ -45,8 +45,8 @@ export const SocialMediaService = {
             source: 'REDDIT',
             sentimentScore: redditScore,
             volume: Math.floor(Math.random() * 2000),
-            summary: priceChange < -1 ? "WSB discussing 'Diamond Hands' and 'Buy the Dip'." : "Meme stock hype continues.",
-            trendingTopics: ['r/wallstreetbets', 'HODL']
+            summary: priceChange < -1 ? "Forumlar 'Dibi Sıyır' ve 'Elmas Eller' konuşuyor." : "Hype hissesi coşkusu devam ediyor.",
+            trendingTopics: ['r/borsa', 'EKLE']
         });
 
         return signals;

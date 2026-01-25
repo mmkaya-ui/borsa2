@@ -1,14 +1,29 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { Stock } from '@/lib/api';
 import { VigilUtils } from '@/lib/vigilUtils';
-import { AlertTriangle, TrendingUp, TrendingDown, Shield, Zap, Globe, MessageCircle } from 'lucide-react';
+import { AlertTriangle, TrendingUp, TrendingDown, Shield, Zap, Globe, MessageCircle, X } from 'lucide-react';
+import { SocialMediaService, SocialSignal } from '@/lib/socialMediaService';
 
 interface GlobalRadarProps {
     stocks: Stock[];
 }
 
 export const GlobalRadar = ({ stocks }: GlobalRadarProps) => {
-    const report = useMemo(() => VigilUtils.analyzeGlobalMarkets(stocks), [stocks]);
+    const [socialSignals, setSocialSignals] = useState<SocialSignal[]>([]);
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+    // Fetch Social Signals
+    useEffect(() => {
+        // Find TUR or SPY to base the mock signals on, or just generic
+        const leadStock = stocks.find(s => s.symbol === 'TUR') || stocks[0];
+        if (leadStock) {
+            SocialMediaService.getSocialSignals(leadStock.symbol, leadStock.changePercent).then(signals => {
+                setSocialSignals(signals);
+            });
+        }
+    }, [stocks]);
+
+    const report = useMemo(() => VigilUtils.analyzeGlobalMarkets(stocks, socialSignals), [stocks, socialSignals]);
 
     const getSymbol = (sym: string) => stocks.find(s => s.symbol === sym);
     const tur = getSymbol('TUR');
@@ -55,8 +70,11 @@ export const GlobalRadar = ({ stocks }: GlobalRadarProps) => {
                 <IndicatorCard stock={nvda} label="Risk İştahı" icon="🤖" />
 
                 {/* Social Sentiment Card */}
-                <div className="bg-[var(--secondary)]/30 rounded-lg p-3 hover:bg-[var(--secondary)]/50 transition-colors">
-                    <div className="text-xs text-[var(--muted-foreground)] mb-1 flex items-center gap-1">
+                <button
+                    onClick={() => setIsDetailsOpen(true)}
+                    className="bg-[var(--secondary)]/30 rounded-lg p-3 hover:bg-[var(--secondary)]/50 transition-colors text-left relative group card-hover-effect"
+                >
+                    <div className="text-xs text-[var(--muted-foreground)] mb-1 flex items-center gap-1 group-hover:text-[var(--primary)] transition-colors">
                         <MessageCircle size={12} /> Sosyal Mood
                     </div>
                     <div className="font-mono font-bold text-sm truncate">
@@ -67,7 +85,9 @@ export const GlobalRadar = ({ stocks }: GlobalRadarProps) => {
                             (report.socialSentiment?.score || 0) < 0 ? 'text-red-500' : 'text-gray-500'}`}>
                         {(report.socialSentiment?.score || 0) > 0 ? "Bullish" : "Bearish"}
                     </div>
-                </div>
+                    {/* Hint tooltip style indicator */}
+                    <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[var(--primary)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
             </div>
 
             {/* AI Analysis Message */}
@@ -93,6 +113,54 @@ export const GlobalRadar = ({ stocks }: GlobalRadarProps) => {
             <div className="absolute -right-10 -bottom-10 opacity-5 pointer-events-none">
                 <Globe size={200} />
             </div>
+
+            {/* Social Details Modal */}
+            {isDetailsOpen && (
+                <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-2xl p-6 max-w-sm w-full relative animate-in zoom-in-95 duration-200">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setIsDetailsOpen(false); }}
+                            className="absolute top-3 right-3 p-1 hover:bg-[var(--secondary)] rounded-full transition-colors"
+                        >
+                            <X size={20} className="text-[var(--muted-foreground)]" />
+                        </button>
+
+                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                            <MessageCircle className="text-[var(--primary)]" size={20} />
+                            Sosyal Medya Analizi
+                        </h3>
+
+                        <div className="space-y-4">
+                            {socialSignals.length > 0 ? socialSignals.map((signal, idx) => (
+                                <div key={idx} className="p-3 bg-[var(--secondary)]/30 rounded-lg border border-[var(--border)]">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-[var(--background)] border border-[var(--border)]">
+                                            {signal.source}
+                                        </span>
+                                        <span className={`text-xs font-bold ${signal.sentimentScore > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                            {signal.sentimentScore > 0 ? 'Pozitif' : 'Negatif'}
+                                        </span>
+                                    </div>
+                                    <p className="text-sm text-[var(--foreground)] mb-2">
+                                        {signal.summary}
+                                    </p>
+                                    <div className="flex flex-wrap gap-1">
+                                        {signal.trendingTopics.map(topic => (
+                                            <span key={topic} className="text-[10px] text-[var(--muted-foreground)]">
+                                                {topic}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )) : (
+                                <div className="text-center py-8 text-[var(--muted-foreground)]">
+                                    Veri yükleniyor...
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

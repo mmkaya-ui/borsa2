@@ -9,16 +9,23 @@ export interface VigilReport {
         score: number;
         summary: string;
     };
+    whaleAlerts: WhaleAlert[];
+    strategy: string;
 }
 
-// Mock Social Signal for synchronous logic (async fetching would require refactor of hook)
-// In a real app, this analysis should be async or data passed in.
-import { SocialMediaService } from './socialMediaService';
+export interface WhaleAlert {
+    symbol: string;
+    type: 'ICEBERG' | 'DARK_ROOM' | 'UNUSUAL_VOLUME' | 'SPOOFING';
+    description: string;
+    severity: 'HIGH' | 'MEDIUM' | 'LOW';
+    timestamp: string;
+}
 
 export const VigilUtils = {
-    analyzeGlobalMarkets: (stocks: Stock[]): VigilReport => {
+    analyzeGlobalMarkets: (stocks: Stock[], socialSignals: SocialSignal[] = []): VigilReport => {
         let score = 0;
         const messages: string[] = [];
+        const whaleAlerts: WhaleAlert[] = [];
         let riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'EXTREME' = 'MEDIUM';
 
         // Helper to find stock
@@ -27,94 +34,135 @@ export const VigilUtils = {
         const tur = getStock('TUR');
         const spy = getStock('SPY');
         const uup = getStock('UUP'); // Dollar Index Proxy
-        const vix = getStock('VIX'); // VIX usually generic or specific symbol
+        const vix = getStock('VIX'); // VIX 
         const nvda = getStock('NVDA');
+        const gld = getStock('GLD');
 
-        // 1. TUR (Turkey ETF) Analysis
+        // --- 1. GLOBAL EYE (KÜRESEL GÖZ) ANALYSIS ---
+        // Logic from "Double-Headed Eagle" Strategy
+
+        // A. TUR (Turkey ETF) - Critical Indicator
         if (tur) {
             if (tur.changePercent < -1.5) {
-                score -= 2;
-                messages.push(`⚠️ TEHLİKE: Türkiye ETF'si ($TUR) %${tur.changePercent.toFixed(2)} düştü. Açılışta satış baskısı olabilir.`);
+                score -= 3;
+                messages.push(`⚠️ $TUR KRİTİK DÜŞÜŞ: %${tur.changePercent.toFixed(2)}. Yabancı çıkışı var. Sabah satıcılı açılış bekleniyor.`);
             } else if (tur.changePercent > 1.5) {
-                score += 2;
-                messages.push(`🚀 FIRSAT: Türkiye ETF'si ($TUR) %${tur.changePercent.toFixed(2)} yükseldi. Pozitif açılış bekleniyor.`);
+                score += 3;
+                messages.push(`🚀 $TUR RALLİSİ: %${tur.changePercent.toFixed(2)}. Yabancı girişi var. Sabah GAP'li yükseliş bekleniyor.`);
             } else {
-                messages.push(`ℹ️ $TUR nötr seyrediyor (%${tur.changePercent.toFixed(2)}).`);
-            }
-        }
-
-        // 2. VIX (Volatility/Fear) Analysis
-        // Note: VIX might need special handling if it's not in the standard stock list or if value is index points
-        // Assuming we treat it as a stock with price = index value
-        if (vix) {
-            if (vix.price > 20) {
-                score -= 1;
-                riskLevel = 'HIGH';
-                messages.push(`😨 KORKU: VIX Endeksi ${vix.price.toFixed(1)} seviyesinde! Global risk yüksek, defansif ol.`);
-            }
-        }
-
-        // 3. Dollar Index (UUP) Analysis
-        if (uup) {
-            // UUP rising means Dollar getting stronger -> Bad for Emerging Markets
-            if (uup.changePercent > 0.5) {
-                score -= 1;
-                messages.push(`💵 Dolar Güçleniyor ($UUP %${uup.changePercent.toFixed(2)}). Yabancı çıkışı riski.`);
-            } else if (uup.changePercent < -0.3) {
-                score += 1;
-                messages.push(`📉 Dolar Gevşiyor ($UUP %${uup.changePercent.toFixed(2)}). Gelişmekte olan piyasalar için olumlu.`);
-            }
-        }
-
-        // 4. NVDA (Risk Appetite) Analysis
-        if (nvda) {
-            if (nvda.changePercent > 1) {
+                messages.push(`ℹ️ $TUR Nötr (%${tur.changePercent.toFixed(2)}). Temkinli iyimserlik.`);
                 score += 0.5;
-                messages.push(`🤖 Risk iştahı yüksek (NVDA +%${nvda.changePercent.toFixed(2)}).`);
-            } else if (nvda.changePercent < -2) {
-                score -= 0.5;
-                messages.push(`⚠️ Teknoloji satış yiyor (NVDA %${nvda.changePercent.toFixed(2)}).`);
             }
         }
-    }
 
-        // 5. Social Media Sentiment Injection (Mock/Reference)
-        // Since this function is sync, we calculate based on existing market data state
-        // In V2 this will come from the async service
-        
+        // B. UUP (Dollar Strength)
+        if (uup) {
+            if (uup.changePercent > 0.5) {
+                score -= 2;
+                messages.push(`💵 Dolar Güçleniyor ($UUP). Gelişmekte olan piyasalardan (BIST) para çıkışı riski.`);
+            } else if (uup.changePercent < -0.3) {
+                score += 2;
+                messages.push(`📉 Dolar Zayıflıyor ($UUP). BIST için pozitif rüzgar.`);
+            }
+        }
+
+        // C. VIX (Fear Index)
+        if (vix && vix.price > 20) {
+            score -= 2;
+            riskLevel = 'HIGH';
+            messages.push(`😨 VIX ALARMI: Korku endeksi ${vix.price.toFixed(1)}! Global risk iştahı kapalı. Defansif moda geç.`);
+        }
+
+        // D. NVDA (Risk Appetite)
+        if (nvda) {
+            if (nvda.changePercent > 1.5) {
+                score += 1;
+                messages.push(`🤖 Risk İştahı Yüksek (NVDA). Teknoloji hisselerine para akıyor.`);
+            } else if (nvda.changePercent < -2) {
+                score -= 1;
+                messages.push(`⚠️ Teknoloji Çöküşü (NVDA). Global satış dalgası tetiklenebilir.`);
+            }
+        }
+
+        // --- 2. SOCIAL SENTIMENT ---
         let socialScore = 0;
-    let socialSummary = "";
+        let socialSummary = "Veri Yok";
+        if (socialSignals.length > 0) {
+            const totalScore = socialSignals.reduce((acc, curr) => acc + curr.sentimentScore, 0);
+            const avgScore = totalScore / socialSignals.length;
+            socialScore = avgScore;
 
-    // Simple logic for now: If heavily bearish market, assume Social is Panic
-    if(tur && tur.changePercent < -2) {
-        socialScore = -0.5;
-socialSummary = "Social Media: Panic selling trending (#crash)";
-messages.push(`🗣️ Sosyal Medya: "Satış" konuşuluyor. Panik havası hakim.`);
-        } else if (tur && tur.changePercent > 1.5) {
-    socialScore = 0.5;
-    socialSummary = "Social Media: Euphoria (#bullrun)";
-    messages.push(`🗣️ Sosyal Medya: "Ralli" beklentisi yüksek.`);
-}
+            const topSignal = socialSignals.sort((a, b) => b.volume - a.volume)[0];
+            socialSummary = topSignal.summary;
 
-score += socialScore;
+            if (avgScore < -0.3) messages.push(`🗣️ Sosyal Medya: Negatif (${topSignal.trendingTopics[0] || 'Satış'}).`);
+            else if (avgScore > 0.3) messages.push(`🗣️ Sosyal Medya: Pozitif (${topSignal.trendingTopics[0] || 'Alım'}).`);
+        }
+        score += socialScore;
 
-// Final Decision
-let decision: 'BUY' | 'SELL' | 'NEUTRAL' = 'NEUTRAL';
-if (score >= 2) decision = 'BUY';
-else if (score <= -2) decision = 'SELL';
+        // --- 3. WHALE HUNTING (BALİNA AVI) SIMULATION ---
+        // Simulate detection of anomalies on random stocks
+        // In real app, this would scan all Tick Data
 
-if (score <= -3) riskLevel = 'EXTREME';
-if (score >= 2 && riskLevel !== 'HIGH') riskLevel = 'LOW';
+        const whaleTargets = stocks.filter(s => !['TUR', 'SPY', 'UUP', 'VIX', 'NVDA', 'GLD'].includes(s.symbol)).slice(0, 5); // Pick some BIST stocks
 
-return {
-    score,
-    decision,
-    messages,
-    riskLevel,
-    socialSentiment: {
-        score: socialScore,
-        summary: socialSummary
-    }
-};
+        whaleTargets.forEach(stock => {
+            // Simulation Logic
+            const rand = Math.random();
+
+            // Iceberg Order
+            if (rand > 0.85 && stock.volume > 1000000) {
+                whaleAlerts.push({
+                    symbol: stock.symbol,
+                    type: 'ICEBERG',
+                    description: `Gizli Alım Tespit Edildi: Tahtada görünmeyen 1.2M lotluk alım emri bloklandı.`,
+                    severity: 'HIGH',
+                    timestamp: new Date().toLocaleTimeString()
+                });
+                score += 0.5; // Whale buying is bullish
+            }
+
+            // Dark Room
+            if (rand < 0.1) {
+                whaleAlerts.push({
+                    symbol: stock.symbol,
+                    type: 'DARK_ROOM',
+                    description: `Karanlık Oda Operasyonu: Kapanışta %2 marj değişimi hesaplandı.`,
+                    severity: 'MEDIUM',
+                    timestamp: new Date().toLocaleTimeString()
+                });
+            }
+        });
+
+
+        // --- 4. FINAL DECISION & STRATEGY ---
+        let decision: 'BUY' | 'SELL' | 'NEUTRAL' = 'NEUTRAL';
+        let strategy = "Piyasayı İzle";
+
+        if (score >= 3) {
+            decision = 'BUY';
+            riskLevel = 'LOW';
+            strategy = "⚔️ SALDIRI MODU (ATTACK): Rüzgar arkamızda. Düşüşler alım fırsatıdır. $TUR ve Global veriler pozitif. BofA robotunun önüne geç ve malı topla.";
+        } else if (score <= -3) {
+            decision = 'SELL';
+            riskLevel = 'EXTREME';
+            strategy = "🛡️ DEFANS MODU (SHIELD): Fırtına geliyor. Nakite geç. $TUR sert düşüşte. Düşen bıçağı tutma, dibi bekle.";
+        } else {
+            decision = 'NEUTRAL';
+            strategy = "👀 PUSU MODU (AMBUSH): Piyasada yön belirsiz. Balinaların hata yapmasını bekle. Iceberg emirleri takip et.";
+        }
+
+        return {
+            score,
+            decision,
+            messages,
+            riskLevel,
+            socialSentiment: {
+                score: socialScore,
+                summary: socialSummary
+            },
+            whaleAlerts,
+            strategy
+        };
     }
 };
