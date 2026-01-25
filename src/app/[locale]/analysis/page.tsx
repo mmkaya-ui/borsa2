@@ -1,46 +1,143 @@
 "use client";
 
 import { useMarketStore } from "@/store/marketStore";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, memo } from "react";
 import { AlertTriangle, TrendingUp, Activity, Info, CheckCircle2, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
-import { memo } from "react";
 import { useMarketAnalysis } from "@/hooks/useMarketAnalysis";
 
 import { Stock } from "@/lib/api";
 import { DetectiveDashboard } from "@/components/DetectiveDashboard";
 
-// ... (existing helper components)
+interface MarketScannerRowProps {
+    stock: Stock & { analysis: any };
+    t: any;
+    trend: 'Bullish' | 'Bearish';
+    confidence: number;
+    isRisky: boolean;
+}
+
+// Memoized Row Component
+const MarketScannerRow = memo(({ stock, t, trend, confidence, isRisky }: MarketScannerRowProps) => {
+    return (
+        <Link href={`/stock/${stock.symbol}`} className="block">
+            <div className={`grid grid-cols-12 gap-4 p-4 items-center border-b border-[var(--border)] hover:bg-[var(--secondary)]/50 transition-colors ${isRisky ? 'bg-[var(--destructive)]/5' : ''}`}>
+
+                {/* Symbol & Name */}
+                <div className="col-span-4 md:col-span-3">
+                    <div className="font-bold text-[var(--foreground)]">{stock.symbol}</div>
+                    <div className="text-xs text-[var(--muted-foreground)] truncate hidden sm:block">{stock.name}</div>
+                </div>
+
+                {/* Price */}
+                <div className="col-span-3 md:col-span-2 text-right">
+                    <div className="font-mono font-medium">
+                        {stock.currency === 'TRY' ? '₺' : '$'}{stock.price.toFixed(2)}
+                    </div>
+                    <div className={`text-xs font-bold ${stock.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {stock.change >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                    </div>
+                </div>
+
+                {/* Risk Score */}
+                <div className="col-span-3 md:col-span-2 text-right">
+                    <div className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-black
+                        ${stock.analysis.riskLevel === 'HIGH' ? 'bg-red-500/20 text-red-500' :
+                            stock.analysis.riskLevel === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-green-500/20 text-green-500'}`}>
+                        {stock.analysis.riskScore}
+                        {stock.analysis.riskLevel === 'HIGH' && <AlertTriangle size={10} />}
+                    </div>
+                </div>
+
+                {/* Trend (Desktop) */}
+                <div className="hidden md:block col-span-3">
+                    <div className="flex items-center gap-2">
+                        <TrendingUp size={16} className={trend === 'Bearish' ? 'text-red-500 rotate-180' : 'text-green-500'} />
+                        <div className="flex flex-col">
+                            <span className={`text-xs font-bold ${trend === 'Bullish' ? 'text-green-500' : 'text-red-500'}`}>
+                                {trend === 'Bullish' ? 'YÜKSELİŞ' : 'DÜŞÜŞ'}
+                            </span>
+                            <span className="text-[10px] text-[var(--muted-foreground)]">
+                                %{confidence} Güven
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Status / Hints */}
+                <div className="col-span-2 text-right">
+                    {stock.analysis.hints.length > 0 ? (
+                        <span className="text-[10px] px-2 py-0.5 bg-[var(--secondary)] rounded text-[var(--foreground)] truncate max-w-full inline-block">
+                            {t(`hints.${stock.analysis.hints[0]}`)}
+                        </span>
+                    ) : (
+                        <span className="text-[10px] text-green-500 font-medium">Stabil</span>
+                    )}
+                </div>
+            </div>
+        </Link>
+    );
+});
+MarketScannerRow.displayName = 'MarketScannerRow';
 
 export default function Analysis() {
-    // ... (existing hooks)
+    const { stocks, fetchStocks, isLoading } = useMarketStore();
+    const t = useTranslations('Analysis');
 
-    // ...
+    // Custom Hook for Senior Architecture
+    const {
+        sortedMarket,
+        analyzedCount,
+        selectedExchange,
+        setSelectedExchange,
+        sortConfig,
+        handleSort
+    } = useMarketAnalysis();
 
-    {/* Exchange Filter */ }
-    <div className="flex gap-2 mt-6 overflow-x-auto pb-2 scrollbar-hide">
-        {['ALL', 'BIST', 'NASDAQ', 'CRYPTO'].map(ex => (
-            <button
-                key={ex}
-                onClick={() => setSelectedExchange(ex)}
-                className={`px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${selectedExchange === ex
-                    ? 'bg-[var(--primary)] text-[var(--primary-foreground)] shadow-lg shadow-[var(--primary)]/20'
-                    : 'bg-[var(--card)] border border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--foreground)]'
-                    }`}
-            >
-                {ex === 'ALL' ? 'Tüm Piyasalar' : ex}
-            </button>
-        ))}
-                ))}
-    </div>
-        </header >
+    useEffect(() => {
+        if (stocks.length === 0) {
+            fetchStocks();
+        }
+    }, [stocks.length, fetchStocks]);
 
-        {/* VIGIL SYSTEM (Detective Dashboard) */ }
-        < DetectiveDashboard stocks = { stocks } />
+    const SortIcon = ({ column }: { column: string }) => {
+        if (sortConfig.key !== column) return <ArrowUpDown size={12} className="opacity-30" />;
+        return sortConfig.direction === 'asc' ? <ArrowUp size={12} className="text-[var(--primary)]" /> : <ArrowDown size={12} className="text-[var(--primary)]" />;
+    };
 
-            {/* MARKET SCANNER LIST */ }
-            < div className = "flex flex-col gap-6" >
+    return (
+        <div className="max-w-7xl mx-auto flex flex-col gap-8">
+            <header>
+                <h1 className="text-4xl font-bold tracking-tight text-[var(--foreground)]">
+                    {t('title')}
+                </h1>
+                <p className="text-[var(--muted-foreground)]">
+                    {t('subtitle')}
+                </p>
+
+                {/* Exchange Filter */}
+                <div className="flex gap-2 mt-6 overflow-x-auto pb-2 scrollbar-hide">
+                    {['ALL', 'BIST', 'NASDAQ', 'CRYPTO'].map(ex => (
+                        <button
+                            key={ex}
+                            onClick={() => setSelectedExchange(ex)}
+                            className={`px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${selectedExchange === ex
+                                ? 'bg-[var(--primary)] text-[var(--primary-foreground)] shadow-lg shadow-[var(--primary)]/20'
+                                : 'bg-[var(--card)] border border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--foreground)]'
+                                }`}
+                        >
+                            {ex === 'ALL' ? 'Tüm Piyasalar' : ex}
+                        </button>
+                    ))}
+                </div>
+            </header>
+
+            {/* VIGIL SYSTEM (Detective Dashboard) */}
+            <DetectiveDashboard stocks={stocks} />
+
+            {/* MARKET SCANNER LIST */}
+            <div className="flex flex-col gap-6">
                 <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold flex items-center gap-2">
                         <Activity className="text-[var(--primary)]" />
@@ -105,8 +202,7 @@ export default function Analysis() {
                         })}
                     </div>
                 </div>
-                </div >
-            </div >
-        </div >
+            </div>
+        </div>
     );
 }
