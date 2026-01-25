@@ -302,19 +302,58 @@ const CRYPTO_STOCKS = [
 
 const MOCK_STOCKS: Stock[] = [
     ...BIST_STOCKS.map(s => populateStock(s, 'BIST')),
-    ...NASDAQ_STOCKS.map(s => populateStock(s, 'NASDAQ')),
+    // NASDAQ stocks will be fetched or fell back to mock
     ...CRYPTO_STOCKS.map(s => populateStock(s, 'CRYPTO'))
 ];
 
 function populateStock(base: { symbol: string; name: string; basePrice: number }, exchange: 'BIST' | 'NASDAQ' | 'CRYPTO'): Stock {
-    // We already have the base data, so we just pass it to the generator
-    // but the generator logic needs to be slightly adapted or we assume the generator
-    // handles the random walk from basePrice.
     return generateRandomStockData({
         ...base,
         exchange,
-        currency: (exchange === 'BIST' || exchange as string === 'TR') ? 'TRY' : 'USD'
+        currency: (exchange === 'BIST' || (exchange as string) === 'TR') ? 'TRY' : 'USD'
     } as any);
+}
+
+// Helper to merge Real Data with Mock structure (for history/charts until we have real history)
+function mergeRealData(base: any, realData: any): Stock {
+    const price = realData.latestTrade?.p || realData.dailyBar?.c || base.basePrice;
+    const prevClose = realData.prevDailyBar?.c || base.basePrice;
+    const change = price - prevClose;
+    const changePercent = (change / prevClose) * 100;
+    const volume = realData.dailyBar?.v || 0;
+    const dayHigh = realData.dailyBar?.h || price;
+    const dayLow = realData.dailyBar?.l || price;
+    const open = realData.dailyBar?.o || price;
+
+    // Generate history ending at current price
+    // We'll create a synthetic history that trends towards the current price
+    const history = [];
+    let current = open;
+    const points = 20;
+    const step = (price - open) / points;
+
+    for (let i = 0; i < points; i++) {
+        // Add some noise
+        const noise = (Math.random() - 0.5) * (price * 0.01);
+        history.push(Math.max(0.01, current + (step * i) + noise));
+    }
+    history.push(price); // Ensure last point is current price
+
+    return {
+        symbol: base.symbol,
+        name: base.name,
+        exchange: 'NASDAQ',
+        currency: 'USD',
+        price,
+        change,
+        changePercent,
+        volume,
+        prevClose,
+        open,
+        dayHigh,
+        dayLow,
+        history
+    };
 }
 
 function generateRandomStockData(base: Stock | any): Stock {
@@ -368,6 +407,28 @@ function generateRandomStockData(base: Stock | any): Stock {
     };
 }
 
+// Internal Helper for fetching US stocks
+async function fetchUSStocksInternal(): Promise<Stock[]> {
+    try {
+        const symbols = NASDAQ_STOCKS.map(s => s.symbol).join(',');
+        const res = await fetch(`/api/stocks/us?symbols=${symbols}`);
+        if (res.ok) {
+            const alpacaData = await res.json();
+            return NASDAQ_STOCKS.map(base => {
+                const data = alpacaData[base.symbol];
+                if (data) {
+                    return mergeRealData(base, data);
+                }
+                return populateStock(base, 'NASDAQ');
+            });
+        }
+    } catch (e) {
+        console.error("Fetch US stocks error", e);
+    }
+    // Fallback
+    return NASDAQ_STOCKS.map(s => populateStock(s, 'NASDAQ'));
+}
+
 function decimalPlaces(price: number): number {
     if (price < 0.01) return 6;
     if (price < 1) return 4;
@@ -376,19 +437,43 @@ function decimalPlaces(price: number): number {
 
 export const MarketAPI = {
     getMarketOverview: async (): Promise<Stock[]> => {
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return MOCK_STOCKS.map(generateRandomStockData);
+        // 1. Fetch Mock Data for BIST & CRYPTO
+        const mockData = MOCK_STOCKS.map(generateRandomStockData);
+
+        // 2. Fetch Real Data for NASDAQ
+        const usStocks = await fetchUSStocksInternal();
+
+        return [...mockData, ...usStocks];
     },
 
     // Simulate live updates
     subscribeToTicker: (callback: (data: Stock[]) => void) => {
-        const interval = setInterval(() => {
-            const updates = MOCK_STOCKS.map(generateRandomStockData);
-            callback(updates);
-        }, 3000); // Update every 3 seconds
+        let usStocks: Stock[] = [];
 
-        return () => clearInterval(interval);
+        // Fetch US stocks loop (every 10s)
+        const fetchUS = async () => {
+            usStocks = await fetchUSStocksInternal();
+        };
+        fetchUS(); // Initial
+        const usInterval = setInterval(fetchUS, 10000);
+
+        // Main emit loop (every 3s)
+        const interval = setInterval(() => {
+            const mockUpdate = MOCK_STOCKS.map(generateRandomStockData);
+            // If fetching hasn't finished yet, we might have empty US stocks. 
+            // Ideally we wait for first fetch, but UI handles loading.
+            // If usStocks is empty, we act like they aren't there or use pure mock fallback?
+            // BETTER: If usStocks is empty, generate Mock for them temporarily so they show up.
+
+            const currentUS = usStocks.length > 0 ? usStocks : NASDAQ_STOCKS.map(s => populateStock(s, 'NASDAQ'));
+
+            callback([...mockUpdate, ...currentUS]);
+        }, 3000);
+
+        return () => {
+            clearInterval(interval);
+            clearInterval(usInterval);
+        };
     },
 
     getHistory: async (symbol: string, range: string): Promise<number[]> => {
