@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Stock } from '@/lib/api';
 import { VigilUtils } from '@/lib/vigilUtils';
-import { AlertTriangle, TrendingUp, TrendingDown, Shield, Zap, Globe } from 'lucide-react';
+import { AlertTriangle, TrendingUp, TrendingDown, Shield, Zap, Globe, MessageCircle } from 'lucide-react';
 
 interface GlobalRadarProps {
     stocks: Stock[];
@@ -48,11 +48,26 @@ export const GlobalRadar = ({ stocks }: GlobalRadarProps) => {
             </div>
 
             {/* Key Indicators Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 relative z-10">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6 relative z-10">
                 <IndicatorCard stock={tur} label="Türkiye (TUR)" icon="🇹🇷" />
                 <IndicatorCard stock={spy} label="ABD (SPY)" icon="🇺🇸" />
                 <IndicatorCard stock={uup} label="Dolar Gücü" icon="💵" inverse />
                 <IndicatorCard stock={nvda} label="Risk İştahı" icon="🤖" />
+
+                {/* Social Sentiment Card */}
+                <div className="bg-[var(--secondary)]/30 rounded-lg p-3 hover:bg-[var(--secondary)]/50 transition-colors">
+                    <div className="text-xs text-[var(--muted-foreground)] mb-1 flex items-center gap-1">
+                        <MessageCircle size={12} /> Sosyal Mood
+                    </div>
+                    <div className="font-mono font-bold text-sm truncate">
+                        {report.socialSentiment?.summary?.split(':')[1] || "Nötr"}
+                    </div>
+                    <div className={`text-xs font-bold flex items-center gap-1 mt-1 
+                        ${(report.socialSentiment?.score || 0) > 0 ? 'text-emerald-500' :
+                            (report.socialSentiment?.score || 0) < 0 ? 'text-red-500' : 'text-gray-500'}`}>
+                        {(report.socialSentiment?.score || 0) > 0 ? "Bullish" : "Bearish"}
+                    </div>
+                </div>
             </div>
 
             {/* AI Analysis Message */}

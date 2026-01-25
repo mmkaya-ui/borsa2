@@ -5,7 +5,15 @@ export interface VigilReport {
     decision: 'BUY' | 'SELL' | 'NEUTRAL';
     messages: string[];
     riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'EXTREME';
+    socialSentiment?: {
+        score: number;
+        summary: string;
+    };
 }
+
+// Mock Social Signal for synchronous logic (async fetching would require refactor of hook)
+// In a real app, this analysis should be async or data passed in.
+import { SocialMediaService } from './socialMediaService';
 
 export const VigilUtils = {
     analyzeGlobalMarkets: (stocks: Stock[]): VigilReport => {
@@ -68,20 +76,45 @@ export const VigilUtils = {
                 messages.push(`⚠️ Teknoloji satış yiyor (NVDA %${nvda.changePercent.toFixed(2)}).`);
             }
         }
+    }
 
-        // Final Decision
-        let decision: 'BUY' | 'SELL' | 'NEUTRAL' = 'NEUTRAL';
-        if (score >= 2) decision = 'BUY';
-        else if (score <= -2) decision = 'SELL';
+        // 5. Social Media Sentiment Injection (Mock/Reference)
+        // Since this function is sync, we calculate based on existing market data state
+        // In V2 this will come from the async service
+        
+        let socialScore = 0;
+    let socialSummary = "";
 
-        if (score <= -3) riskLevel = 'EXTREME';
-        if (score >= 2 && riskLevel !== 'HIGH') riskLevel = 'LOW';
+    // Simple logic for now: If heavily bearish market, assume Social is Panic
+    if(tur && tur.changePercent < -2) {
+        socialScore = -0.5;
+socialSummary = "Social Media: Panic selling trending (#crash)";
+messages.push(`🗣️ Sosyal Medya: "Satış" konuşuluyor. Panik havası hakim.`);
+        } else if (tur && tur.changePercent > 1.5) {
+    socialScore = 0.5;
+    socialSummary = "Social Media: Euphoria (#bullrun)";
+    messages.push(`🗣️ Sosyal Medya: "Ralli" beklentisi yüksek.`);
+}
 
-        return {
-            score,
-            decision,
-            messages,
-            riskLevel
-        };
+score += socialScore;
+
+// Final Decision
+let decision: 'BUY' | 'SELL' | 'NEUTRAL' = 'NEUTRAL';
+if (score >= 2) decision = 'BUY';
+else if (score <= -2) decision = 'SELL';
+
+if (score <= -3) riskLevel = 'EXTREME';
+if (score >= 2 && riskLevel !== 'HIGH') riskLevel = 'LOW';
+
+return {
+    score,
+    decision,
+    messages,
+    riskLevel,
+    socialSentiment: {
+        score: socialScore,
+        summary: socialSummary
+    }
+};
     }
 };
